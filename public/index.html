@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lagomarsino S.A. - Mapa Comercial Embolsado</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIINfQ5v6I5gQC5W7kM0rY3F9dr4B8A9T0k="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="map-stage" aria-label="Mapa comercial Embolsado">
+        <div id="map"></div>
+        <div class="map-topbar">
+          <div class="brand-block">
+            <p>Lagomarsino S.A. / Canal Embolsado</p>
+            <h1>Mapa comercial</h1>
+          </div>
+          <div class="map-actions" aria-label="Acciones del mapa">
+            <button id="fit-map" class="icon-button" type="button" title="Ver zonas">⌖</button>
+            <button id="toggle-edit" class="text-button" type="button">Editar zonas</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="control-panel" aria-label="Panel territorial">
+        <section class="panel-section">
+          <div class="section-heading">
+            <span>Zonas tentativas</span>
+            <strong>4</strong>
+          </div>
+          <div id="zone-filters" class="filter-list"></div>
+        </section>
+
+        <section class="panel-section">
+          <label class="select-label" for="zone-editor-select">Zona a editar</label>
+          <select id="zone-editor-select"></select>
+          <div class="hint">
+            Arrastra vertices en el mapa o pega coordenadas JSON. Despues copia la configuracion para conservar los cambios.
+          </div>
+        </section>
+
+        <section class="panel-section editor-panel">
+          <div class="section-heading compact">
+            <span>Coordenadas</span>
+            <button id="apply-coordinates" class="text-button muted" type="button">Aplicar</button>
+          </div>
+          <textarea id="coordinates-editor" spellcheck="false"></textarea>
+          <div id="editor-status" class="editor-status">Editor listo.</div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-heading compact">
+            <span>Capas</span>
+          </div>
+          <label class="switch-row">
+            <input id="toggle-caba" type="checkbox" checked />
+            <span>Mostrar Capital Federal excluida</span>
+          </label>
+          <label class="switch-row">
+            <input id="toggle-reference" type="checkbox" checked />
+            <span>Mostrar puntos de referencia</span>
+          </label>
+        </section>
+
+        <section class="panel-section summary-panel">
+          <div class="metric-row">
+            <span>Clientes</span>
+            <strong>pendiente Excel</strong>
+          </div>
+          <div class="metric-row">
+            <span>Ventas</span>
+            <strong>no cargadas</strong>
+          </div>
+          <div class="metric-row">
+            <span>CABA</span>
+            <strong>excluida</strong>
+          </div>
+        </section>
+
+        <div class="panel-footer">
+          <button id="copy-config" class="primary-button" type="button">Copiar zonas JSON</button>
+          <p>Primera version territorial: AMBA sin Capital Federal e Interior. Preparada para sumar clientes geolocalizados y ventas mas adelante.</p>
+        </div>
+      </aside>
+    </main>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="/data.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>

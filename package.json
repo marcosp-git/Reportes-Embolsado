@@ -1,0 +1,10 @@
+{
+  "name": "embolsado-mapa-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "python3 -m http.server 5173 -d public"
+  }
+}
