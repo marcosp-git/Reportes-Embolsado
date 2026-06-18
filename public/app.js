@@ -352,6 +352,15 @@ function fitVisible(includeInterior = true) {
   }
 }
 
+function fitInitialView() {
+  if (Array.isArray(data.initialBounds)) {
+    map.fitBounds(data.initialBounds, { padding: [48, 48], maxZoom: 10 });
+    return;
+  }
+
+  fitVisible(false);
+}
+
 function render() {
   renderZoneControls();
   renderZones();
@@ -361,7 +370,7 @@ function render() {
 }
 
 zoneSelect.addEventListener("change", () => selectZone(zoneSelect.value));
-fitMapButton.addEventListener("click", () => fitVisible(false));
+fitMapButton.addEventListener("click", fitInitialView);
 toggleEditButton.addEventListener("click", () => {
   editing = !editing;
   render();
@@ -380,11 +389,11 @@ toggleReference.addEventListener("change", () => {
 fillZoneSelect();
 updateEditor();
 render();
-fitVisible(false);
+fitInitialView();
 
 requestAnimationFrame(() => {
   map.invalidateSize();
-  fitVisible(false);
+  fitInitialView();
 });
 
 window.addEventListener("resize", () => {
