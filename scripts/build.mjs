@@ -37,7 +37,7 @@ export default {
       return new Response(asset.body, {
         headers: {
           "content-type": asset.contentType,
-          "cache-control": "public, max-age=300"
+          "cache-control": "no-store, max-age=0"
         }
       });
     }
