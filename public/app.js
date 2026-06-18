@@ -376,3 +376,12 @@ fillZoneSelect();
 updateEditor();
 render();
 fitVisible(false);
+
+requestAnimationFrame(() => {
+  map.invalidateSize();
+  fitVisible(false);
+});
+
+window.addEventListener("resize", () => {
+  map.invalidateSize();
+});
