@@ -89,21 +89,37 @@ window.EMBOLSADO_MAP_DATA = {
       manager: "Jefe de Venta Interior",
       color: "#7c3aed",
       defaultVisible: true,
-      description: "Cobertura tentativa fuera de AMBA. El hueco evita superponer AMBA.",
-      labelPosition: [-32.9, -63.2],
+      description: "Cobertura nacional tentativa para analizar ventas fuera de AMBA.",
+      labelPosition: [-32.9, -63.8],
       coordinates: [
-        [
-          [-21.6, -73.8],
-          [-21.6, -52.7],
-          [-55.2, -52.7],
-          [-55.2, -73.8]
-        ],
-        [
-          [-34.24, -59.28],
-          [-35.15, -59.28],
-          [-35.15, -57.88],
-          [-34.24, -57.88]
-        ]
+        [-21.78, -66.22],
+        [-22.1, -62.2],
+        [-24.05, -59.15],
+        [-25.65, -57.74],
+        [-27.28, -55.55],
+        [-30.18, -57.63],
+        [-33.65, -58.42],
+        [-36.35, -57.02],
+        [-38.75, -62.22],
+        [-41.0, -63.78],
+        [-42.85, -64.95],
+        [-46.02, -67.55],
+        [-49.3, -67.72],
+        [-52.35, -68.55],
+        [-55.05, -68.52],
+        [-54.86, -70.88],
+        [-51.62, -73.28],
+        [-48.88, -73.58],
+        [-45.8, -71.72],
+        [-42.26, -71.78],
+        [-39.15, -71.13],
+        [-36.62, -70.33],
+        [-34.18, -69.86],
+        [-31.95, -69.22],
+        [-29.25, -68.65],
+        [-26.52, -68.34],
+        [-24.12, -67.32],
+        [-21.78, -66.22]
       ]
     }
   ],
@@ -127,9 +143,27 @@ window.EMBOLSADO_MAP_DATA = {
       detail: "Referencia territorial, no cliente."
     },
     {
-      name: "Interior",
-      lat: -32.95,
-      lng: -60.64,
+      name: "Rosario",
+      lat: -32.9442,
+      lng: -60.6505,
+      detail: "Referencia territorial, no cliente."
+    },
+    {
+      name: "Cordoba",
+      lat: -31.4201,
+      lng: -64.1888,
+      detail: "Referencia territorial, no cliente."
+    },
+    {
+      name: "Mendoza",
+      lat: -32.8895,
+      lng: -68.8458,
+      detail: "Referencia territorial, no cliente."
+    },
+    {
+      name: "Mar del Plata",
+      lat: -38.0055,
+      lng: -57.5426,
       detail: "Referencia territorial, no cliente."
     }
   ]

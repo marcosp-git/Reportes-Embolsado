@@ -120,6 +120,11 @@ function renderZones() {
 
   zones
     .filter((zone) => visibleZones.has(zone.id))
+    .sort((a, b) => {
+      if (a.id === "interior") return -1;
+      if (b.id === "interior") return 1;
+      return 0;
+    })
     .forEach((zone) => {
       const polygon = L.polygon(polygonShape(zone), zoneStyle(zone)).bindPopup(`
         <div class="popup-card">
