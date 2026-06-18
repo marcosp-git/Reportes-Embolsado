@@ -193,14 +193,19 @@ function renderZoneControls() {
   zoneFilters.innerHTML = "";
 
   zones.forEach((zone) => {
-    const row = document.createElement("label");
+    const row = document.createElement("div");
     row.className = `zone-toggle ${zone.id === selectedZoneId ? "is-selected" : ""}`;
     row.style.setProperty("--zone-color", zone.color);
 
     const input = document.createElement("input");
     input.type = "checkbox";
+    input.setAttribute("aria-label", `Mostrar ${zone.name}`);
     input.checked = visibleZones.has(zone.id);
-    input.addEventListener("change", () => {
+    input.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+    input.addEventListener("change", (event) => {
+      event.stopPropagation();
       if (input.checked) visibleZones.add(zone.id);
       else visibleZones.delete(zone.id);
       render();
@@ -220,6 +225,7 @@ function renderZoneControls() {
     button.textContent = "✎";
     button.addEventListener("click", (event) => {
       event.preventDefault();
+      event.stopPropagation();
       selectZone(zone.id);
       editing = true;
       render();
