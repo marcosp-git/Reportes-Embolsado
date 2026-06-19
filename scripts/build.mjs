@@ -11,6 +11,7 @@ const files = [
   ["index.html", "text/html; charset=utf-8"],
   ["styles.css", "text/css; charset=utf-8"],
   ["data.js", "application/javascript; charset=utf-8"],
+  ["caba-zones.js", "application/javascript; charset=utf-8"],
   ["umap-data.js", "application/javascript; charset=utf-8"],
   ["app.js", "application/javascript; charset=utf-8"]
 ];

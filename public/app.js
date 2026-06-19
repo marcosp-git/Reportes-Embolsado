@@ -1,6 +1,7 @@
 const data = window.EMBOLSADO_MAP_DATA;
+const cabaData = window.EMBOLSADO_CABA_ZONES || { zones: [], splitLine: [] };
 const umapData = window.UMAP_IMPORTED_DATA || { groups: [], layers: [], summary: { featureCount: 0 } };
-const zones = data.zones;
+const zones = [...data.zones, ...cabaData.zones];
 
 const zoneById = new Map(zones.map((zone) => [zone.id, zone]));
 const visibleZones = new Set(zones.filter((zone) => zone.defaultVisible).map((zone) => zone.id));
@@ -30,6 +31,7 @@ const editLayer = L.layerGroup().addTo(map);
 const umapLayer = L.layerGroup().addTo(map);
 
 const zoneFilters = document.getElementById("zone-filters");
+const zoneCount = document.getElementById("zone-count");
 const umapLayerControls = document.getElementById("umap-layer-controls");
 const umapLayerCount = document.getElementById("umap-layer-count");
 const umapFeatureCount = document.getElementById("umap-feature-count");
@@ -47,16 +49,30 @@ function isNestedCoordinates(coordinates) {
   return Array.isArray(coordinates[0]?.[0]);
 }
 
+function coordinateDepth(value) {
+  let depth = 0;
+  let cursor = value;
+  while (Array.isArray(cursor)) {
+    depth += 1;
+    cursor = cursor[0];
+  }
+  return depth;
+}
+
 function cloneCoordinates(coordinates) {
   return JSON.parse(JSON.stringify(coordinates));
 }
 
 function getRings(zone) {
-  return isNestedCoordinates(zone.coordinates) ? zone.coordinates : [zone.coordinates];
+  const depth = coordinateDepth(zone.coordinates);
+  if (depth === 2) return [zone.coordinates];
+  if (depth === 3) return zone.coordinates;
+  if (depth === 4) return zone.coordinates.flat();
+  return [];
 }
 
 function getOuterRing(zone) {
-  return getRings(zone)[0];
+  return getRings(zone)[0] || [];
 }
 
 function setCoordinates(zone, nextCoordinates) {
@@ -83,7 +99,8 @@ function validateCoordinates(value) {
     throw new Error("La zona necesita al menos 3 puntos o anillos.");
   }
 
-  const rings = isNestedCoordinates(value) ? value : [value];
+  const depth = coordinateDepth(value);
+  const rings = depth === 4 ? value.flat() : depth === 3 ? value : [value];
   rings.forEach((ring) => {
     if (!Array.isArray(ring) || ring.length < 3) {
       throw new Error("Cada anillo necesita al menos 3 puntos.");
@@ -172,15 +189,15 @@ function renderCaba() {
   cabaLayer.clearLayers();
   if (!showCaba) return;
 
-  L.polygon(data.cabaExclusion.coordinates, {
-    color: data.cabaExclusion.color,
+  if (!cabaData.splitLine.length) return;
+
+  L.polyline(cabaData.splitLine.map((point) => [point.lat, point.lng]), {
+    color: "#111827",
     weight: 2,
-    opacity: 0.95,
-    fillColor: data.cabaExclusion.color,
-    fillOpacity: 0.16,
-    dashArray: "3 6"
+    opacity: 0.9,
+    dashArray: "6 6"
   })
-    .bindPopup(`<strong>${data.cabaExclusion.name}</strong><br><span class="excluded-area">Excluida de esta primera version.</span>`)
+    .bindPopup(`<strong>Ferrocarril San Martin</strong><br><span class="excluded-area">Delimitador operativo entre CABA 1 y CABA 2.</span>`)
     .addTo(cabaLayer);
 }
 
@@ -373,6 +390,7 @@ function renderUmapControls() {
 
 function renderZoneControls() {
   zoneFilters.innerHTML = "";
+  if (zoneCount) zoneCount.textContent = zones.length;
 
   zones.forEach((zone) => {
     const row = document.createElement("div");
@@ -405,9 +423,15 @@ function renderZoneControls() {
     button.type = "button";
     button.title = `Editar ${zone.name}`;
     button.textContent = "✎";
+    button.disabled = zone.editable === false;
     button.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
+      if (zone.editable === false) {
+        selectZone(zone.id);
+        setStatus("Esta zona se genera desde fuente oficial y no se edita manualmente.", true);
+        return;
+      }
       selectZone(zone.id);
       editing = true;
       render();
@@ -443,6 +467,7 @@ function renderEditHandles() {
   if (!editing) return;
 
   const zone = zoneById.get(selectedZoneId);
+  if (zone.editable === false) return;
   const rings = getRings(zone);
 
   rings.forEach((ring, ringIndex) => {
@@ -479,12 +504,19 @@ function renderEditHandles() {
 
 function selectZone(zoneId) {
   selectedZoneId = zoneId;
+  if (zoneById.get(zoneId)?.editable === false) {
+    editing = false;
+  }
   updateEditor();
   render();
 }
 
 function applyCoordinates() {
   const zone = zoneById.get(selectedZoneId);
+  if (zone.editable === false) {
+    setStatus("Esta zona se genera desde fuente oficial y no se edita manualmente.", true);
+    return;
+  }
 
   try {
     const nextCoordinates = JSON.parse(coordinatesEditor.value);

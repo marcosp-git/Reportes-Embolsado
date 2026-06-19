@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Lagomarsino S.A. - Mapa Comercial Embolsado</title>
-    <link rel="stylesheet" href="/styles.css?v=20260619-9" />
+    <link rel="stylesheet" href="/styles.css?v=20260619-10" />
   </head>
   <body>
     <main class="app-shell">
@@ -26,7 +26,7 @@
         <section class="panel-section">
           <div class="section-heading">
             <span>Zonas tentativas</span>
-            <strong>4</strong>
+            <strong id="zone-count">0</strong>
           </div>
           <div id="zone-filters" class="filter-list"></div>
         </section>
@@ -54,7 +54,7 @@
           </div>
           <label class="switch-row">
             <input id="toggle-caba" type="checkbox" checked />
-            <span>Mostrar Capital Federal excluida</span>
+            <span>Mostrar traza San Martin</span>
           </label>
           <label class="switch-row">
             <input id="toggle-reference" type="checkbox" checked />
@@ -86,7 +86,7 @@
           </div>
           <div class="metric-row">
             <span>CABA</span>
-            <strong>excluida</strong>
+            <strong>CABA 1 / 2</strong>
           </div>
         </section>
 
@@ -102,8 +102,9 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
-    <script src="/data.js?v=20260619-9"></script>
-    <script src="/umap-data.js?v=20260619-9"></script>
-    <script src="/app.js?v=20260619-9"></script>
+    <script src="/data.js?v=20260619-10"></script>
+    <script src="/caba-zones.js?v=20260619-10"></script>
+    <script src="/umap-data.js?v=20260619-10"></script>
+    <script src="/app.js?v=20260619-10"></script>
   </body>
 </html>

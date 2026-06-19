@@ -3,31 +3,15 @@ window.EMBOLSADO_MAP_DATA = {
   company: "Lagomarsino S.A.",
   channel: "Embolsado",
   notes: {
-    capitalFederal: "Capital Federal queda excluida de esta primera version.",
+    caba: "CABA se divide comercialmente en CABA 1 y CABA 2 por la traza operativa del Ferrocarril San Martin.",
     sales: "No hay ventas cargadas todavia.",
     clients: "Los clientes reales geolocalizados se cargaran luego desde Exceles actuales."
   },
   territoryAssignment: {
     rule: "specific-zones-first",
-    priority: ["amba-norte", "amba-oeste", "amba-sur", "interior"],
+    priority: ["caba-1", "caba-2", "amba-norte", "amba-oeste", "amba-sur", "interior"],
     fallbackZoneId: "interior",
-    excludedZoneIds: ["capital-federal"]
-  },
-  cabaExclusion: {
-    name: "Capital Federal",
-    color: "#6b7280",
-    coordinates: [
-      [-34.534, -58.535],
-      [-34.548, -58.458],
-      [-34.566, -58.374],
-      [-34.594, -58.335],
-      [-34.631, -58.347],
-      [-34.667, -58.381],
-      [-34.694, -58.459],
-      [-34.665, -58.529],
-      [-34.615, -58.532],
-      [-34.566, -58.548]
-    ]
+    excludedZoneIds: []
   },
   initialBounds: [
     [-35.08, -59.1],
@@ -40,7 +24,7 @@ window.EMBOLSADO_MAP_DATA = {
       manager: "Jefe de Venta AMBA Norte",
       color: "#047857",
       defaultVisible: true,
-      description: "Zona tentativa de GBA norte hasta Zarate, sin Capital Federal.",
+      description: "Zona tentativa de GBA norte hasta Zarate. CABA 1 se administra por el mismo jefe.",
       labelPosition: [-34.35, -58.82],
       coordinates: [
         [-34.548, -58.458],
@@ -61,7 +45,7 @@ window.EMBOLSADO_MAP_DATA = {
       manager: "Jefe de Venta AMBA Oeste",
       color: "#2563eb",
       defaultVisible: true,
-      description: "Zona tentativa de GBA oeste, sin Capital Federal.",
+      description: "Zona tentativa de GBA oeste. CABA 2 se administra por el mismo jefe.",
       labelPosition: [-34.69, -58.82],
       coordinates: [
         [-34.566, -58.548],
@@ -80,7 +64,7 @@ window.EMBOLSADO_MAP_DATA = {
       manager: "Jefe de Venta AMBA Sur",
       color: "#dc2626",
       defaultVisible: true,
-      description: "Zona tentativa de GBA sur incluyendo La Plata, sin Capital Federal.",
+      description: "Zona tentativa de GBA sur incluyendo La Plata.",
       labelPosition: [-34.9, -58.28],
       coordinates: [
         [-34.665, -58.529],

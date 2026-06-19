@@ -1,0 +1,15 @@
+{
+  "source": "Operational split requested by Lagomarsino S.A.; points trace the Ferrocarril San Martin corridor across CABA.",
+  "note": "Coordinates are [lng, lat]. The generator intersects this line-derived split with the official GCBA barrios GeoJSON.",
+  "points": [
+    { "name": "General Paz / San Martin approach", "coordinates": [-58.532, -34.597] },
+    { "name": "Villa Devoto", "coordinates": [-58.513, -34.600] },
+    { "name": "Villa del Parque", "coordinates": [-58.493, -34.600] },
+    { "name": "Agronomia", "coordinates": [-58.479, -34.599] },
+    { "name": "La Paternal", "coordinates": [-58.465, -34.598] },
+    { "name": "Chacarita", "coordinates": [-58.454, -34.592] },
+    { "name": "Palermo", "coordinates": [-58.426, -34.581] },
+    { "name": "Retiro", "coordinates": [-58.374, -34.591] },
+    { "name": "Puerto / eastern extension", "coordinates": [-58.335, -34.595] }
+  ]
+}
