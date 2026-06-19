@@ -468,6 +468,7 @@ function renderEditHandles() {
 
   const zone = zoneById.get(selectedZoneId);
   if (zone.editable === false) return;
+  const originalDepth = coordinateDepth(zone.coordinates);
   const rings = getRings(zone);
 
   rings.forEach((ring, ringIndex) => {
@@ -488,8 +489,7 @@ function renderEditHandles() {
           Number(latLng.lat.toFixed(5)),
           Number(latLng.lng.toFixed(5))
         ];
-        zone.coordinates = isNestedCoordinates(zone.coordinates) ? rings : rings[0];
-        if (!isNestedCoordinates(zone.coordinates)) {
+        if (originalDepth === 2) {
           zone.labelPosition = estimateCenter(zone.coordinates);
         }
         updateEditor();
