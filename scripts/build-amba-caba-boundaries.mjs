@@ -63,7 +63,6 @@ const areaForMultiPolygon = (multiPolygon) =>
 
 const cabaMask = pc.union(...caba.zones.map((zone) => toMultiPolygon(zone.coordinates)));
 const stats = {};
-const landMask = [rules.landMask];
 let assigned = cabaMask;
 const priority = rules.priority || ["amba-norte", "amba-oeste", "amba-sur"];
 
@@ -73,17 +72,14 @@ priority.forEach((zoneId) => {
   const zone = nextZonesById.get(zoneId);
   if (!zone) throw new Error(`Missing zone ${zoneId}`);
 
-  const sourceExpansion = rules.sourceExpansions?.[zone.id] || [];
-  const source = sourceExpansion.length
-    ? pc.union(toMultiPolygon(zone.coordinates), [sourceExpansion])
+  const source = rules.sourceOverrides?.[zone.id]
+    ? [rules.sourceOverrides[zone.id]]
     : toMultiPolygon(zone.coordinates);
-  const onLand = pc.intersection(source, landMask);
-  const clipped = pc.difference(onLand, assigned);
+  const clipped = pc.difference(source, assigned);
   if (!clipped.length) throw new Error(`${zone.id} disappeared after CABA clipping`);
 
   stats[zone.id] = {
     sourceArea: areaForMultiPolygon(source),
-    landArea: areaForMultiPolygon(onLand),
     clippedArea: areaForMultiPolygon(clipped),
     polygons: clipped.length,
     rings: clipped.reduce((sum, polygon) => sum + polygon.length, 0)
