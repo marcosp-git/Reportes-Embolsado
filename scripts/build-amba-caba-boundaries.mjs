@@ -4,7 +4,7 @@ import pc from "polygon-clipping";
 
 const dataPath = process.argv[2] || "public/data.js";
 const cabaPath = process.argv[3] || "public/caba-zones.js";
-const patchesPath = process.argv[4] || "data/amba-caba-overlap-patches.json";
+const rulesPath = process.argv[4] || "data/amba-topology-rules.json";
 
 const context = { window: {} };
 vm.createContext(context);
@@ -13,7 +13,7 @@ vm.runInContext(await readFile(cabaPath, "utf8"), context);
 
 const data = context.window.EMBOLSADO_MAP_DATA;
 const caba = context.window.EMBOLSADO_CABA_ZONES;
-const patches = JSON.parse(await readFile(patchesPath, "utf8")).patches;
+const rules = JSON.parse(await readFile(rulesPath, "utf8"));
 
 const roundCoord = (value) => Number(value.toFixed(6));
 const closeRing = (ring) => {
@@ -63,33 +63,50 @@ const areaForMultiPolygon = (multiPolygon) =>
 
 const cabaMask = pc.union(...caba.zones.map((zone) => toMultiPolygon(zone.coordinates)));
 const stats = {};
+const landMask = [rules.landMask];
+let assigned = cabaMask;
+const priority = rules.priority || ["amba-norte", "amba-oeste", "amba-sur"];
 
-data.zones = data.zones.map((zone) => {
-  if (!patches[zone.id]) return zone;
+const nextZonesById = new Map(data.zones.map((zone) => [zone.id, zone]));
 
-  const source = pc.union(toMultiPolygon(zone.coordinates), [patches[zone.id]]);
-  const clipped = pc.difference(source, cabaMask);
+priority.forEach((zoneId) => {
+  const zone = nextZonesById.get(zoneId);
+  if (!zone) throw new Error(`Missing zone ${zoneId}`);
+
+  const sourceExpansion = rules.sourceExpansions?.[zone.id] || [];
+  const source = sourceExpansion.length
+    ? pc.union(toMultiPolygon(zone.coordinates), [sourceExpansion])
+    : toMultiPolygon(zone.coordinates);
+  const onLand = pc.intersection(source, landMask);
+  const clipped = pc.difference(onLand, assigned);
   if (!clipped.length) throw new Error(`${zone.id} disappeared after CABA clipping`);
 
   stats[zone.id] = {
     sourceArea: areaForMultiPolygon(source),
+    landArea: areaForMultiPolygon(onLand),
     clippedArea: areaForMultiPolygon(clipped),
     polygons: clipped.length,
     rings: clipped.reduce((sum, polygon) => sum + polygon.length, 0)
   };
 
-  return {
+  nextZonesById.set(zone.id, {
     ...zone,
-    description: `${zone.description} Limite CABA recalculado contra geometria oficial GCBA.`,
+    description: `${zone.description} Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.`,
     cabaBoundarySource: "generated-official-caba-mask",
+    topologySource: "generated-amba-priority-mask",
     coordinates: toLatLngMultiPolygon(clipped)
-  };
+  });
+
+  assigned = pc.union(assigned, clipped);
 });
+
+data.zones = data.zones.map((zone) => nextZonesById.get(zone.id) || zone);
 
 data.generatedAt = "2026-06-19";
 data.boundaryGeneration = {
   cabaBoundarySource: caba.sources?.cabaBoundary,
-  ambaPatchSource: patchesPath,
+  ambaTopologySource: rulesPath,
+  priority,
   generatedAt: new Date().toISOString(),
   stats
 };
