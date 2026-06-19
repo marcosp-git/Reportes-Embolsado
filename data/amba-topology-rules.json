@@ -1,5 +1,5 @@
 {
-  "note": "Tentative AMBA source polygons. Coordinates are [lng, lat]. CABA is subtracted first, then zones are assigned by priority to avoid overlaps. Oeste includes the urban corridor through Gonzalez Catan, Esperanza and Virrey del Pino; Sur starts east/southeast of that operational boundary.",
+  "note": "Tentative AMBA source polygons. Coordinates are [lng, lat]. CABA is subtracted first, then zones are assigned by priority to avoid overlaps. Oeste includes the urban corridor through Gonzalez Catan, Esperanza and Virrey del Pino; Spegazzini stays on the AMBA Sur side of the operational boundary.",
   "priority": ["amba-norte", "amba-oeste", "amba-sur"],
   "sourceOverrides": {
     "amba-norte": [
@@ -26,9 +26,9 @@
         [-58.735, -34.61],
         [-58.54, -34.565],
         [-58.47, -34.64],
-        [-58.52, -34.73],
-        [-58.575, -34.84],
-        [-58.63, -35.02],
+        [-58.505, -34.72],
+        [-58.58, -34.84],
+        [-58.665, -35.02],
         [-58.78, -35.02],
         [-58.93, -34.97],
         [-59.16, -34.81],
@@ -38,9 +38,9 @@
     "amba-sur": [
       [
         [-58.47, -34.64],
-        [-58.52, -34.73],
-        [-58.575, -34.84],
-        [-58.63, -35.02],
+        [-58.505, -34.72],
+        [-58.58, -34.84],
+        [-58.665, -35.02],
         [-58.34, -35.14],
         [-58.02, -35.06],
         [-57.88, -34.92],

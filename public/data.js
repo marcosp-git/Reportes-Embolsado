@@ -37,7 +37,7 @@ window.EMBOLSADO_MAP_DATA = {
       "manager": "Jefe de Venta AMBA Norte",
       "color": "#047857",
       "defaultVisible": true,
-      "description": "Zona tentativa de GBA norte hasta Zarate. CABA 1 se administra por el mismo jefe. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
+      "description": "Zona tentativa de GBA norte hasta Zarate. CABA 1 se administra por el mismo jefe. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
       "labelPosition": [
         -34.35,
         -58.82
@@ -3877,7 +3877,7 @@ window.EMBOLSADO_MAP_DATA = {
       "manager": "Jefe de Venta AMBA Oeste",
       "color": "#2563eb",
       "defaultVisible": true,
-      "description": "Zona tentativa de GBA oeste. CABA 2 se administra por el mismo jefe. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
+      "description": "Zona tentativa de GBA oeste. CABA 2 se administra por el mismo jefe. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
       "labelPosition": [
         -34.69,
         -58.82
@@ -3903,19 +3903,31 @@ window.EMBOLSADO_MAP_DATA = {
             ],
             [
               -35.02,
-              -58.63
+              -58.665
             ],
             [
               -34.84,
-              -58.575
+              -58.58
             ],
             [
-              -34.73,
-              -58.52
+              -34.72,
+              -58.505
             ],
             [
-              -34.681603,
-              -58.493113
+              -34.684386,
+              -58.489419
+            ],
+            [
+              -34.683902,
+              -58.490061
+            ],
+            [
+              -34.682854,
+              -58.491452
+            ],
+            [
+              -34.682792,
+              -58.491535
             ],
             [
               -34.681493,
@@ -4201,7 +4213,7 @@ window.EMBOLSADO_MAP_DATA = {
       "manager": "Jefe de Venta AMBA Sur",
       "color": "#dc2626",
       "defaultVisible": true,
-      "description": "Zona tentativa de GBA sur incluyendo La Plata. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
+      "description": "Zona tentativa de GBA sur incluyendo La Plata. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
       "labelPosition": [
         -34.9,
         -58.28
@@ -4211,7 +4223,7 @@ window.EMBOLSADO_MAP_DATA = {
           [
             [
               -35.02,
-              -58.63
+              -58.665
             ],
             [
               -35.14,
@@ -6806,32 +6818,20 @@ window.EMBOLSADO_MAP_DATA = {
               -58.4888
             ],
             [
-              -34.683902,
-              -58.490061
+              -34.684386,
+              -58.489419
             ],
             [
-              -34.682854,
-              -58.491452
-            ],
-            [
-              -34.682792,
-              -58.491535
-            ],
-            [
-              -34.681603,
-              -58.493113
-            ],
-            [
-              -34.73,
-              -58.52
+              -34.72,
+              -58.505
             ],
             [
               -34.84,
-              -58.575
+              -58.58
             ],
             [
               -35.02,
-              -58.63
+              -58.665
             ]
           ]
         ]
@@ -7065,7 +7065,7 @@ window.EMBOLSADO_MAP_DATA = {
       "amba-oeste",
       "amba-sur"
     ],
-    "generatedAt": "2026-06-19T19:29:22.239Z",
+    "generatedAt": "2026-06-19T20:03:42.200Z",
     "stats": {
       "amba-norte": {
         "sourceArea": 0.2781000000001086,
@@ -7074,14 +7074,14 @@ window.EMBOLSADO_MAP_DATA = {
         "rings": 1
       },
       "amba-oeste": {
-        "sourceArea": 0.23003750000009404,
-        "clippedArea": 0.2239846484123973,
+        "sourceArea": 0.2271125000000893,
+        "clippedArea": 0.22095064835468747,
         "polygons": 1,
         "rings": 1
       },
       "amba-sur": {
-        "sourceArea": 0.25522499999988213,
-        "clippedArea": 0.24916270298058407,
+        "sourceArea": 0.26024999999981446,
+        "clippedArea": 0.2542967030383352,
         "polygons": 1,
         "rings": 1
       }
