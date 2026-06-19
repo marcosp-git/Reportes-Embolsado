@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Lagomarsino S.A. - Mapa Comercial Embolsado</title>
-    <link rel="stylesheet" href="/styles.css?v=20260618-8" />
+    <link rel="stylesheet" href="/styles.css?v=20260619-9" />
   </head>
   <body>
     <main class="app-shell">
@@ -62,14 +62,27 @@
           </label>
         </section>
 
+        <section class="panel-section umap-panel">
+          <div class="section-heading compact">
+            <span>uMap Espacios Blancos</span>
+            <strong id="umap-layer-count">0</strong>
+          </div>
+          <div class="hint">Capas importadas del trabajo de espacios blancos: oportunidades, clientes y molinos.</div>
+          <div id="umap-layer-controls" class="umap-layer-controls"></div>
+        </section>
+
         <section class="panel-section summary-panel">
           <div class="metric-row">
             <span>Clientes</span>
-            <strong>pendiente Excel</strong>
+            <strong id="clients-status">uMap importado</strong>
           </div>
           <div class="metric-row">
             <span>Ventas</span>
             <strong>no cargadas</strong>
+          </div>
+          <div class="metric-row">
+            <span>Capas uMap</span>
+            <strong id="umap-feature-count">pendiente</strong>
           </div>
           <div class="metric-row">
             <span>CABA</span>
@@ -79,7 +92,7 @@
 
         <div class="panel-footer">
           <button id="copy-config" class="primary-button" type="button">Copiar zonas JSON</button>
-          <p>Primera version territorial: AMBA sin Capital Federal e Interior. Preparada para sumar clientes geolocalizados y ventas mas adelante.</p>
+          <p>Mapa territorial con importacion uMap. Ventas y tableros comerciales quedan pendientes para la etapa Excel.</p>
         </div>
       </aside>
     </main>
@@ -89,7 +102,8 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
-    <script src="/data.js?v=20260618-8"></script>
-    <script src="/app.js?v=20260618-8"></script>
+    <script src="/data.js?v=20260619-9"></script>
+    <script src="/umap-data.js?v=20260619-9"></script>
+    <script src="/app.js?v=20260619-9"></script>
   </body>
 </html>

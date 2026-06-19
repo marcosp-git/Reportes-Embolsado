@@ -1,8 +1,10 @@
 const data = window.EMBOLSADO_MAP_DATA;
+const umapData = window.UMAP_IMPORTED_DATA || { groups: [], layers: [], summary: { featureCount: 0 } };
 const zones = data.zones;
 
 const zoneById = new Map(zones.map((zone) => [zone.id, zone]));
 const visibleZones = new Set(zones.filter((zone) => zone.defaultVisible).map((zone) => zone.id));
+const visibleUmapLayers = new Set(umapData.layers.filter((layer) => layer.defaultVisible).map((layer) => layer.id));
 let selectedZoneId = zones[0].id;
 let editing = false;
 let showCaba = true;
@@ -25,8 +27,12 @@ const labelLayer = L.layerGroup().addTo(map);
 const cabaLayer = L.layerGroup().addTo(map);
 const referenceLayer = L.layerGroup().addTo(map);
 const editLayer = L.layerGroup().addTo(map);
+const umapLayer = L.layerGroup().addTo(map);
 
 const zoneFilters = document.getElementById("zone-filters");
+const umapLayerControls = document.getElementById("umap-layer-controls");
+const umapLayerCount = document.getElementById("umap-layer-count");
+const umapFeatureCount = document.getElementById("umap-feature-count");
 const zoneSelect = document.getElementById("zone-editor-select");
 const coordinatesEditor = document.getElementById("coordinates-editor");
 const editorStatus = document.getElementById("editor-status");
@@ -97,6 +103,19 @@ function validateCoordinates(value) {
 function setStatus(message, isError = false) {
   editorStatus.textContent = message;
   editorStatus.classList.toggle("is-error", isError);
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function formatNumber(value) {
+  return new Intl.NumberFormat("es-AR").format(value || 0);
 }
 
 function polygonShape(zone) {
@@ -186,6 +205,169 @@ function renderReferencePoints() {
         </div>
       `)
       .addTo(referenceLayer);
+  });
+}
+
+function colorForUmapLayer(layer, feature) {
+  const featureColor = feature?.properties?._umap_options?.color;
+  if (featureColor) return featureColor;
+  if (layer.color) return layer.color;
+
+  const fallbackColors = {
+    opportunity: "#b91c1c",
+    "active-total": "#16a34a",
+    "inactive-total": "#d97706",
+    mills: "#3f6212",
+    "active-vendor": "#0f766e",
+    "inactive-vendor": "#78716c",
+    other: "#475569"
+  };
+
+  return fallbackColors[layer.group] || fallbackColors.other;
+}
+
+function styleForUmapFeature(layer) {
+  return (feature) => {
+    const color = colorForUmapLayer(layer, feature);
+    const isOpportunity = layer.group === "opportunity";
+    const isMill = layer.group === "mills";
+
+    return {
+      color,
+      weight: isOpportunity ? 1.6 : 1.2,
+      opacity: isOpportunity ? 0.75 : 0.82,
+      fillColor: color,
+      fillOpacity: isOpportunity ? 0.16 : isMill ? 0.22 : 0.32
+    };
+  };
+}
+
+function markerForUmapPoint(layer, feature, latlng) {
+  const color = colorForUmapLayer(layer, feature);
+  const radius = layer.group === "mills" ? 5.5 : layer.group.includes("total") ? 4.2 : 3.7;
+
+  return L.circleMarker(latlng, {
+    radius,
+    color: "#ffffff",
+    weight: 1,
+    opacity: 0.95,
+    fillColor: color,
+    fillOpacity: layer.group === "inactive-total" || layer.group === "inactive-vendor" ? 0.68 : 0.84
+  });
+}
+
+function popupForUmapFeature(layer, feature) {
+  const properties = feature.properties || {};
+  const details = [
+    ["Cliente", properties.CLIENTE],
+    ["Cuenta", properties.NROCTA],
+    ["Vendedor", properties.VENDEDOR || properties.VENDEDOR_],
+    ["Domicilio", properties.DOMICILIO],
+    ["Localidad", properties.LOCALIDADES],
+    ["Razon social", properties["RAZ�N SOCIAL"] || properties["RAZON SOCIAL"]],
+    ["Nombre", properties.name],
+    ["Detalle", properties.description]
+  ].filter(([, value]) => value !== undefined && value !== null && String(value).trim() !== "");
+
+  const body = details.length
+    ? details.map(([label, value]) => `<span><b>${escapeHtml(label)}:</b> ${escapeHtml(value)}</span>`).join("")
+    : "<span>Sin datos descriptivos.</span>";
+
+  return `
+    <div class="popup-card umap-popup">
+      <strong>${escapeHtml(layer.name)}</strong>
+      ${body}
+    </div>
+  `;
+}
+
+function renderUmapLayers() {
+  umapLayer.clearLayers();
+
+  umapData.layers
+    .filter((layer) => visibleUmapLayers.has(layer.id))
+    .forEach((layer) => {
+      L.geoJSON(layer.geojson, {
+        style: styleForUmapFeature(layer),
+        pointToLayer: (feature, latlng) => markerForUmapPoint(layer, feature, latlng),
+        onEachFeature: (feature, leafletLayer) => {
+          leafletLayer.bindPopup(popupForUmapFeature(layer, feature));
+        }
+      }).addTo(umapLayer);
+    });
+}
+
+function setUmapGroupVisibility(groupId, checked) {
+  umapData.layers
+    .filter((layer) => layer.group === groupId)
+    .forEach((layer) => {
+      if (checked) visibleUmapLayers.add(layer.id);
+      else visibleUmapLayers.delete(layer.id);
+    });
+  renderUmapControls();
+  renderUmapLayers();
+}
+
+function renderUmapControls() {
+  if (!umapLayerControls) return;
+  umapLayerControls.innerHTML = "";
+
+  if (umapLayerCount) umapLayerCount.textContent = formatNumber(umapData.summary?.layerCount || umapData.layers.length);
+  if (umapFeatureCount) umapFeatureCount.textContent = `${formatNumber(umapData.summary?.featureCount)} features`;
+
+  umapData.groups.forEach((group) => {
+    const groupLayers = umapData.layers.filter((layer) => layer.group === group.id);
+    if (!groupLayers.length) return;
+
+    const details = document.createElement("details");
+    details.className = "umap-group";
+    details.open = ["opportunity", "active-total", "inactive-total", "mills"].includes(group.id);
+
+    const summary = document.createElement("summary");
+    const checkedCount = groupLayers.filter((layer) => visibleUmapLayers.has(layer.id)).length;
+    const groupCheckbox = document.createElement("input");
+    groupCheckbox.type = "checkbox";
+    groupCheckbox.checked = checkedCount === groupLayers.length;
+    groupCheckbox.indeterminate = checkedCount > 0 && checkedCount < groupLayers.length;
+    groupCheckbox.addEventListener("click", (event) => event.stopPropagation());
+    groupCheckbox.addEventListener("change", () => setUmapGroupVisibility(group.id, groupCheckbox.checked));
+
+    const label = document.createElement("span");
+    label.innerHTML = `<strong>${escapeHtml(group.label)}</strong><small>${checkedCount}/${groupLayers.length}</small>`;
+    summary.append(groupCheckbox, label);
+    details.appendChild(summary);
+
+    const list = document.createElement("div");
+    list.className = "umap-layer-list";
+
+    groupLayers.forEach((layer) => {
+      const row = document.createElement("label");
+      row.className = "umap-layer-row";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = visibleUmapLayers.has(layer.id);
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) visibleUmapLayers.add(layer.id);
+        else visibleUmapLayers.delete(layer.id);
+        renderUmapControls();
+        renderUmapLayers();
+      });
+
+      const color = document.createElement("span");
+      color.className = "umap-swatch";
+      color.style.background = layer.color || "currentColor";
+
+      const text = document.createElement("span");
+      text.className = "umap-layer-text";
+      text.innerHTML = `<strong>${escapeHtml(layer.name)}</strong><small>${formatNumber(layer.featureCount)} elementos</small>`;
+
+      row.append(checkbox, color, text);
+      list.appendChild(row);
+    });
+
+    details.appendChild(list);
+    umapLayerControls.appendChild(details);
   });
 }
 
@@ -370,6 +552,8 @@ function fitInitialView() {
 function render() {
   renderZoneControls();
   renderZones();
+  renderUmapControls();
+  renderUmapLayers();
   renderCaba();
   renderReferencePoints();
   renderEditHandles();
