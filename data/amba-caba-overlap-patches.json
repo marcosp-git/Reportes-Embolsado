@@ -1,0 +1,32 @@
+{
+  "note": "Coarse overlap patches force AMBA source polygons to cross the official CABA boundary before subtracting CABA. Coordinates are [lng, lat].",
+  "patches": {
+    "amba-norte": [
+      [
+        [-58.56, -34.515],
+        [-58.28, -34.515],
+        [-58.28, -34.62],
+        [-58.56, -34.62],
+        [-58.56, -34.515]
+      ]
+    ],
+    "amba-oeste": [
+      [
+        [-58.59, -34.535],
+        [-58.43, -34.535],
+        [-58.43, -34.735],
+        [-58.59, -34.735],
+        [-58.59, -34.535]
+      ]
+    ],
+    "amba-sur": [
+      [
+        [-58.52, -34.61],
+        [-58.22, -34.61],
+        [-58.22, -34.79],
+        [-58.52, -34.79],
+        [-58.52, -34.61]
+      ]
+    ]
+  }
+}

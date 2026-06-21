@@ -13,6 +13,8 @@ const files = [
   ["data.js", "application/javascript; charset=utf-8"],
   ["caba-zones.js", "application/javascript; charset=utf-8"],
   ["umap-data.js", "application/javascript; charset=utf-8"],
+  ["commercial-data.js", "application/javascript; charset=utf-8"],
+  ["dashboard-data.js", "application/javascript; charset=utf-8"],
   ["app.js", "application/javascript; charset=utf-8"]
 ];
 
@@ -22,7 +24,8 @@ await mkdir(join(distDir, ".openai"), { recursive: true });
 
 const assets = {};
 for (const [file, contentType] of files) {
-  const body = await readFile(join(publicDir, file), "utf8");
+  const filePath = join(publicDir, file);
+  const body = await readFile(filePath, "utf8");
   assets[`/${file}`] = { contentType, body };
 }
 assets["/"] = assets["/index.html"];

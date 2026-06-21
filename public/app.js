@@ -1,15 +1,41 @@
 const data = window.EMBOLSADO_MAP_DATA;
 const cabaData = window.EMBOLSADO_CABA_ZONES || { zones: [], splitLine: [] };
 const umapData = window.UMAP_IMPORTED_DATA || { groups: [], layers: [], summary: { featureCount: 0 } };
+const dashboardData = window.EMBOLSADO_DASHBOARD_DATA || {
+  period: {},
+  totals: {},
+  projected: [],
+  daily: [],
+  sellers: [],
+  teamNewRecovered: {},
+  teamActivity: {},
+  clientRanking: [],
+  zoneVolume: [],
+  sources: []
+};
+const commercialData = window.EMBOLSADO_COMMERCIAL_DATA || {
+  clients: [],
+  summary: {},
+  coverage: [],
+  zoneSummary: [],
+  statusCounts: {},
+  zoneCounts: {},
+  volumeByZone: {}
+};
 const zones = [...data.zones, ...cabaData.zones];
 
 const zoneById = new Map(zones.map((zone) => [zone.id, zone]));
+const commercialClientById = new Map((commercialData.clients || []).map((client) => [client.id, client]));
 const visibleZones = new Set(zones.filter((zone) => zone.defaultVisible).map((zone) => zone.id));
 const visibleUmapLayers = new Set(umapData.layers.filter((layer) => layer.defaultVisible).map((layer) => layer.id));
+const visibleClientStatuses = new Set(["A", "I", "CONFLICTO A/I", "SIN ESTADO"]);
 let selectedZoneId = zones[0].id;
+let selectedClientId = null;
 let editing = false;
 let showCaba = true;
 let showReference = true;
+let showCommercialClients = true;
+let activeDashboardTab = "summary";
 
 const map = L.map("map", {
   zoomControl: false,
@@ -29,12 +55,23 @@ const cabaLayer = L.layerGroup().addTo(map);
 const referenceLayer = L.layerGroup().addTo(map);
 const editLayer = L.layerGroup().addTo(map);
 const umapLayer = L.layerGroup().addTo(map);
+const commercialClientLayer = L.layerGroup().addTo(map);
 
 const zoneFilters = document.getElementById("zone-filters");
 const zoneCount = document.getElementById("zone-count");
 const umapLayerControls = document.getElementById("umap-layer-controls");
 const umapLayerCount = document.getElementById("umap-layer-count");
 const umapFeatureCount = document.getElementById("umap-feature-count");
+const commercialClientCount = document.getElementById("commercial-client-count");
+const clientStatusControls = document.getElementById("client-status-controls");
+const drilldownContent = document.getElementById("drilldown-content");
+const dataDiagnostic = document.getElementById("data-diagnostic");
+const dashboardPeriod = document.getElementById("dashboard-period");
+const dashboardKpis = document.getElementById("dashboard-kpis");
+const dashboardView = document.getElementById("dashboard-view");
+const dashboardTabs = document.querySelectorAll("[data-dashboard-tab]");
+const clientsStatus = document.getElementById("clients-status");
+const volumeStatus = document.getElementById("volume-status");
 const zoneSelect = document.getElementById("zone-editor-select");
 const coordinatesEditor = document.getElementById("coordinates-editor");
 const editorStatus = document.getElementById("editor-status");
@@ -44,6 +81,7 @@ const applyCoordinatesButton = document.getElementById("apply-coordinates");
 const copyConfigButton = document.getElementById("copy-config");
 const toggleCaba = document.getElementById("toggle-caba");
 const toggleReference = document.getElementById("toggle-reference");
+const toggleCommercialClients = document.getElementById("toggle-commercial-clients");
 
 function isNestedCoordinates(coordinates) {
   return Array.isArray(coordinates[0]?.[0]);
@@ -135,6 +173,285 @@ function formatNumber(value) {
   return new Intl.NumberFormat("es-AR").format(value || 0);
 }
 
+function formatDecimal(value, maximumFractionDigits = 1) {
+  return new Intl.NumberFormat("es-AR", { maximumFractionDigits }).format(value || 0);
+}
+
+function formatVolume(value) {
+  if (!value) return "0";
+  return formatDecimal(value, value >= 1000 ? 0 : 1);
+}
+
+function formatPercent(value, digits = 0) {
+  return new Intl.NumberFormat("es-AR", {
+    style: "percent",
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits
+  }).format(value || 0);
+}
+
+function formatSignedPercent(value) {
+  const formatted = formatPercent(Math.abs(value || 0), 1);
+  return `${value >= 0 ? "+" : "-"}${formatted}`;
+}
+
+function formatMoney(value) {
+  return new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 0
+  }).format(value || 0);
+}
+
+function statusLabel(status) {
+  const labels = {
+    A: "Activo",
+    I: "Inactivo",
+    "CONFLICTO A/I": "Conflicto A/I",
+    "SIN ESTADO": "Sin estado"
+  };
+  return labels[status] || status || "Sin estado";
+}
+
+function colorForClientStatus(status) {
+  const colors = {
+    A: "#16a34a",
+    I: "#f59e0b",
+    "CONFLICTO A/I": "#dc2626",
+    "SIN ESTADO": "#64748b"
+  };
+  return colors[status] || colors["SIN ESTADO"];
+}
+
+function topBy(items, keyFn, valueFn = () => 1, limit = 5) {
+  const totals = new Map();
+  items.forEach((item) => {
+    const key = keyFn(item) || "(sin dato)";
+    totals.set(key, (totals.get(key) || 0) + valueFn(item));
+  });
+  return [...totals.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([name, value]) => ({ name, value }));
+}
+
+function performanceClass(value) {
+  if (value >= 0.95) return "good";
+  if (value >= 0.8) return "watch";
+  return "risk";
+}
+
+function progressBar(value) {
+  const pct = Math.max(0, Math.min(120, (value || 0) * 100));
+  return `<div class="progress-track"><span class="${performanceClass(value)}" style="width:${Math.min(pct, 100)}%"></span></div>`;
+}
+
+function dashboardMetricCard(label, value, detail, tone = "neutral") {
+  return `
+    <article class="kpi-card ${tone}">
+      <span>${escapeHtml(label)}</span>
+      <strong>${value}</strong>
+      <small>${detail}</small>
+    </article>
+  `;
+}
+
+function getProjected(category, team) {
+  return (dashboardData.projected || []).find((item) => item.category === category && item.team === team);
+}
+
+function teamsFromProjected() {
+  return (dashboardData.projected || [])
+    .filter((item) => !["TOTAL", "MOSTRADOR"].includes(item.team))
+    .reduce((acc, item) => {
+      if (!acc.includes(item.team)) acc.push(item.team);
+      return acc;
+    }, []);
+}
+
+function teamSummary(team) {
+  const hae = getProjected("HAE", team) || {};
+  const pre = getProjected("PREMEZCLAS", team) || {};
+  const newRecovered = dashboardData.teamNewRecovered?.[team] || {};
+  const activity = Object.entries(dashboardData.teamActivity || {}).find(([key]) => key.includes(team[0]))?.[1] || {};
+  return { team, hae, pre, newRecovered, activity };
+}
+
+function renderDashboardKpis() {
+  if (!dashboardKpis) return;
+  const totals = dashboardData.totals || {};
+  const period = dashboardData.period || {};
+  const haeGap = (totals.haeObjective || 0) - (totals.haeActual || 0);
+  const preGap = (totals.premezclasObjective || 0) - (totals.premezclasActual || 0);
+
+  if (dashboardPeriod) {
+    dashboardPeriod.textContent = period.countedDays
+      ? `${formatNumber(period.countedDays)}/${formatNumber(period.monthDays)} dias`
+      : "sin datos";
+  }
+
+  dashboardKpis.innerHTML = [
+    dashboardMetricCard("HAE a fecha", formatPercent(totals.haeVsToDate, 0), `${formatVolume(totals.haeActual)} de ${formatVolume(totals.haeObjective)} bls`, performanceClass(totals.haeVsToDate)),
+    dashboardMetricCard("Gap HAE mes", formatVolume(haeGap), "bolsas restantes", haeGap <= 0 ? "good" : "watch"),
+    dashboardMetricCard("Premezclas a fecha", formatPercent(totals.premezclasVsToDate, 0), `${formatVolume(totals.premezclasActual)} de ${formatVolume(totals.premezclasObjective)} bls`, performanceClass(totals.premezclasVsToDate)),
+    dashboardMetricCard("Gap Premezclas", formatVolume(preGap), "bolsas restantes", preGap <= 0 ? "good" : "watch")
+  ].join("");
+}
+
+function tableRows(rows, columns) {
+  return rows
+    .map(
+      (row) => `
+        <tr>
+          ${columns.map((column) => `<td class="${column.align || ""}">${column.render(row)}</td>`).join("")}
+        </tr>
+      `
+    )
+    .join("");
+}
+
+function renderSummaryDashboard() {
+  const teams = teamsFromProjected().map(teamSummary);
+  const teamCards = teams
+    .map(({ team, hae, pre, newRecovered }) => {
+      const newPct = newRecovered.newObjective ? newRecovered.newActual / newRecovered.newObjective : 0;
+      const recoveredNet = (newRecovered.recoveredActual || 0) - (newRecovered.lostClients || 0);
+      return `
+        <article class="team-card">
+          <div>
+            <strong>${escapeHtml(team)}</strong>
+            <span>HAE ${formatPercent(hae.vsToDate, 0)} · Pre ${formatPercent(pre.vsToDate, 0)}</span>
+          </div>
+          ${progressBar(hae.vsToDate)}
+          <dl>
+            <dt>Vta HAE</dt><dd>${formatVolume(hae.actual)}</dd>
+            <dt>Nuevos</dt><dd>${formatVolume(newRecovered.newActual || 0)}/${formatVolume(newRecovered.newObjective || 0)}</dd>
+            <dt>Rec neta</dt><dd>${formatVolume(recoveredNet)}</dd>
+          </dl>
+        </article>
+      `;
+    })
+    .join("");
+
+  const zoneRows = (dashboardData.zoneVolume || [])
+    .slice(0, 6)
+    .map((row) => `<li><span>${escapeHtml(row.zone)}</span><strong>${formatVolume(row.volume)}</strong></li>`)
+    .join("");
+
+  dashboardView.innerHTML = `
+    <div class="dashboard-grid">
+      ${teamCards || "<p class='empty-state'>Sin resumen por equipo.</p>"}
+    </div>
+    <div class="dashboard-split">
+      <div class="rank-block">
+        <span>Volumen geolocalizado por zona</span>
+        <ul>${zoneRows}</ul>
+      </div>
+      <div class="rank-block">
+        <span>Actualizacion</span>
+        <ul>
+          <li><span>Exceles fuente</span><strong>${formatNumber((dashboardData.sources || []).length)}</strong></li>
+          <li><span>Dataset local</span><strong>${escapeHtml(dashboardData.generatedAt || "sin fecha")}</strong></li>
+        </ul>
+      </div>
+    </div>
+  `;
+}
+
+function renderTeamsDashboard() {
+  const rows = teamsFromProjected().map(teamSummary);
+  dashboardView.innerHTML = `
+    <table class="dashboard-table">
+      <thead>
+        <tr>
+          <th>Equipo</th>
+          <th>HAE</th>
+          <th>Gap HAE</th>
+          <th>Premezclas</th>
+          <th>Nuevos</th>
+          <th>Recuperados</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${tableRows(rows, [
+          { render: (row) => `<strong>${escapeHtml(row.team)}</strong>` },
+          { render: (row) => `${formatPercent(row.hae.vsToDate, 0)} ${progressBar(row.hae.vsToDate)}` },
+          { align: "num", render: (row) => formatVolume((row.hae.objective || 0) - (row.hae.actual || 0)) },
+          { render: (row) => `${formatPercent(row.pre.vsToDate, 0)} ${progressBar(row.pre.vsToDate)}` },
+          { align: "num", render: (row) => `${formatVolume(row.newRecovered.newActual || 0)}/${formatVolume(row.newRecovered.newObjective || 0)}` },
+          { align: "num", render: (row) => `${formatVolume(row.newRecovered.recoveredActual || 0)} rec · ${formatVolume(row.newRecovered.lostClients || 0)} perd` }
+        ])}
+      </tbody>
+    </table>
+  `;
+}
+
+function renderSellersDashboard() {
+  const sellers = (dashboardData.sellers || []).filter((seller) => seller.haeActual || seller.totalTn).slice(0, 24);
+  dashboardView.innerHTML = `
+    <table class="dashboard-table">
+      <thead>
+        <tr>
+          <th>Corredor</th>
+          <th>Jefe</th>
+          <th>HAE acum</th>
+          <th>TN 2SJ</th>
+          <th>PP kg</th>
+          <th>Activos</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${tableRows(sellers, [
+          { render: (row) => `<strong>${escapeHtml(row.seller)}</strong>` },
+          { render: (row) => escapeHtml(row.teamCode || "") },
+          { align: "num", render: (row) => formatVolume(row.haeActual) },
+          { align: "num", render: (row) => formatDecimal(row.totalTn, 1) },
+          { align: "num", render: (row) => formatMoney(row.ppxKg).replace("$", "") },
+          { align: "num", render: (row) => `${formatNumber(row.activeClients)} / ${formatNumber(row.inactiveClients)}` }
+        ])}
+      </tbody>
+    </table>
+  `;
+}
+
+function renderClientsDashboard() {
+  const clients = (dashboardData.clientRanking || []).slice(0, 18);
+  dashboardView.innerHTML = `
+    <table class="dashboard-table">
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Vendedor</th>
+          <th>Categoria</th>
+          <th>Total</th>
+          <th>Objetivo +35%</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${tableRows(clients, [
+          { render: (row) => `<strong>${escapeHtml(row.name || row.id)}</strong><small>${escapeHtml(row.id)}</small>` },
+          { render: (row) => escapeHtml(row.seller || "") },
+          { render: (row) => escapeHtml(row.category || "") },
+          { align: "num", render: (row) => formatVolume(row.total) },
+          { align: "num", render: (row) => formatVolume(row.objective35) }
+        ])}
+      </tbody>
+    </table>
+  `;
+}
+
+function renderDashboard() {
+  if (!dashboardView) return;
+  renderDashboardKpis();
+  dashboardTabs.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.dashboardTab === activeDashboardTab);
+  });
+  if (activeDashboardTab === "teams") renderTeamsDashboard();
+  else if (activeDashboardTab === "sellers") renderSellersDashboard();
+  else if (activeDashboardTab === "clients") renderClientsDashboard();
+  else renderSummaryDashboard();
+}
+
 function polygonShape(zone) {
   return cloneCoordinates(zone.coordinates);
 }
@@ -223,6 +540,224 @@ function renderReferencePoints() {
       `)
       .addTo(referenceLayer);
   });
+}
+
+function filteredCommercialClients() {
+  return (commercialData.clients || []).filter((client) => {
+    if (!showCommercialClients) return false;
+    if (!visibleZones.has(client.zoneId)) return false;
+    if (!visibleClientStatuses.has(client.status)) return false;
+    return Number.isFinite(client.lat) && Number.isFinite(client.lon);
+  });
+}
+
+function clientRadius(client) {
+  if (!client.totalUm) return 3.2;
+  return Math.max(4.2, Math.min(13, 3.8 + Math.sqrt(client.totalUm) / 28));
+}
+
+function popupForCommercialClient(client) {
+  const families = (client.families || [])
+    .slice(0, 4)
+    .map((item) => `<span><b>${escapeHtml(item.name)}:</b> ${formatVolume(item.um)}</span>`)
+    .join("");
+
+  return `
+    <div class="popup-card commercial-popup">
+      <strong>${escapeHtml(client.name || client.id)}</strong>
+      <span><b>Cuenta:</b> ${escapeHtml(client.id)}</span>
+      <span><b>Zona:</b> ${escapeHtml(client.zoneName)}</span>
+      <span><b>Vendedor:</b> ${escapeHtml(client.seller || "Sin dato")}</span>
+      <span><b>Estado:</b> ${escapeHtml(statusLabel(client.status))}</span>
+      <span><b>UM:</b> ${formatVolume(client.totalUm)}</span>
+      ${families}
+    </div>
+  `;
+}
+
+function renderCommercialClients() {
+  commercialClientLayer.clearLayers();
+  const clients = filteredCommercialClients();
+
+  if (commercialClientCount) {
+    commercialClientCount.textContent = formatNumber(clients.length);
+  }
+
+  clients.forEach((client) => {
+    const selected = client.id === selectedClientId;
+    L.circleMarker([client.lat, client.lon], {
+      radius: selected ? clientRadius(client) + 3 : clientRadius(client),
+      color: selected ? "#111827" : "#ffffff",
+      weight: selected ? 2.4 : 1.1,
+      opacity: 0.96,
+      fillColor: colorForClientStatus(client.status),
+      fillOpacity: client.totalUm ? 0.82 : 0.54
+    })
+      .bindPopup(popupForCommercialClient(client))
+      .on("click", () => selectClient(client.id))
+      .addTo(commercialClientLayer);
+  });
+}
+
+function renderClientStatusControls() {
+  if (!clientStatusControls) return;
+  clientStatusControls.innerHTML = "";
+
+  const statusOrder = ["A", "I", "CONFLICTO A/I", "SIN ESTADO"];
+  statusOrder.forEach((status) => {
+    const count = commercialData.statusCounts?.[status] || 0;
+    if (!count) return;
+
+    const row = document.createElement("label");
+    row.className = "status-row";
+    row.style.setProperty("--status-color", colorForClientStatus(status));
+
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.checked = visibleClientStatuses.has(status);
+    input.addEventListener("change", () => {
+      if (input.checked) visibleClientStatuses.add(status);
+      else visibleClientStatuses.delete(status);
+      renderCommercialClients();
+      renderDrilldown();
+    });
+
+    const dot = document.createElement("span");
+    dot.className = "status-dot";
+
+    const label = document.createElement("span");
+    label.innerHTML = `<strong>${escapeHtml(statusLabel(status))}</strong><small>${formatNumber(count)}</small>`;
+
+    row.append(input, dot, label);
+    clientStatusControls.appendChild(row);
+  });
+}
+
+function metricList(rows) {
+  return rows.map(([label, value]) => `<div class="mini-metric"><span>${escapeHtml(label)}</span><strong>${value}</strong></div>`).join("");
+}
+
+function renderClientDetail(client) {
+  const families = (client.families || []).length
+    ? client.families.map((item) => `<li><span>${escapeHtml(item.name)}</span><strong>${formatVolume(item.um)}</strong></li>`).join("")
+    : "<li><span>Sin familia asignada</span><strong>0</strong></li>";
+  const products = (client.products || []).length
+    ? client.products.map((item) => `<li><span>${escapeHtml(item.name)}</span><strong>${formatVolume(item.um)}</strong></li>`).join("")
+    : "<li><span>Sin detalle producto</span><strong>0</strong></li>";
+
+  drilldownContent.innerHTML = `
+    <div class="drill-card">
+      <div class="drill-title">
+        <strong>${escapeHtml(client.name || client.id)}</strong>
+        <span>${escapeHtml(client.id)}</span>
+      </div>
+      ${metricList([
+        ["Zona", escapeHtml(client.zoneName)],
+        ["Vendedor", escapeHtml(client.seller || "Sin dato")],
+        ["Estado", escapeHtml(statusLabel(client.status))],
+        ["UM", formatVolume(client.totalUm)]
+      ])}
+      <div class="rank-block">
+        <span>Familias</span>
+        <ul>${families}</ul>
+      </div>
+      <div class="rank-block">
+        <span>Productos</span>
+        <ul>${products}</ul>
+      </div>
+    </div>
+  `;
+}
+
+function renderZoneDrilldown(zoneId) {
+  const zone = zoneById.get(zoneId);
+  const zoneClients = (commercialData.clients || []).filter((client) => client.zoneId === zoneId);
+  const totalVolume = zoneClients.reduce((sum, client) => sum + (client.totalUm || 0), 0);
+  const withVolume = zoneClients.filter((client) => client.totalUm > 0).length;
+  const topSellers = topBy(zoneClients, (client) => client.seller, () => 1, 5);
+  const topClients = [...zoneClients]
+    .filter((client) => client.totalUm > 0)
+    .sort((a, b) => b.totalUm - a.totalUm)
+    .slice(0, 5);
+
+  const sellerRows = topSellers.length
+    ? topSellers.map((item) => `<li><span>${escapeHtml(item.name)}</span><strong>${formatNumber(item.value)}</strong></li>`).join("")
+    : "<li><span>Sin vendedor</span><strong>0</strong></li>";
+
+  const clientRows = topClients.length
+    ? topClients.map((client) => `<li><button type="button" data-client-id="${escapeHtml(client.id)}">${escapeHtml(client.name || client.id)}</button><strong>${formatVolume(client.totalUm)}</strong></li>`).join("")
+    : "<li><span>Sin volumen cargado</span><strong>0</strong></li>";
+
+  drilldownContent.innerHTML = `
+    <div class="drill-card">
+      <div class="drill-title">
+        <strong>${escapeHtml(zone?.name || "Zona")}</strong>
+        <span>${escapeHtml(zone?.manager || "")}</span>
+      </div>
+      ${metricList([
+        ["Clientes con punto", formatNumber(zoneClients.length)],
+        ["Clientes con volumen", formatNumber(withVolume)],
+        ["UM total", formatVolume(totalVolume)],
+        ["Estado", "framework"]
+      ])}
+      <div class="rank-block">
+        <span>Vendedores</span>
+        <ul>${sellerRows}</ul>
+      </div>
+      <div class="rank-block">
+        <span>Top clientes</span>
+        <ul>${clientRows}</ul>
+      </div>
+    </div>
+  `;
+
+  drilldownContent.querySelectorAll("[data-client-id]").forEach((button) => {
+    button.addEventListener("click", () => selectClient(button.dataset.clientId));
+  });
+}
+
+function renderDrilldown() {
+  if (!drilldownContent) return;
+  const selectedClient = selectedClientId ? commercialClientById.get(selectedClientId) : null;
+  if (selectedClient) renderClientDetail(selectedClient);
+  else renderZoneDrilldown(selectedZoneId);
+}
+
+function renderDataDiagnostic() {
+  if (clientsStatus) {
+    clientsStatus.textContent = commercialData.summary?.mapClients
+      ? `${formatNumber(commercialData.summary.mapClients)} mapeados`
+      : "sin dataset";
+  }
+  if (volumeStatus) {
+    volumeStatus.textContent = commercialData.summary?.withVolume
+      ? `${formatNumber(commercialData.summary.withVolume)} clientes`
+      : "sin volumen";
+  }
+  if (!dataDiagnostic) return;
+
+  const summary = commercialData.summary || {};
+  const bestCoverage = (commercialData.coverage || [])
+    .slice()
+    .sort((a, b) => Number(b.coverage_pct || 0) - Number(a.coverage_pct || 0))
+    .slice(0, 3);
+
+  const coverageRows = bestCoverage
+    .map((row) => `<li><span>${escapeHtml(row.source)}</span><strong>${escapeHtml(row.coverage_pct)}%</strong></li>`)
+    .join("");
+
+  dataDiagnostic.innerHTML = `
+    ${metricList([
+      ["Normalizados", formatNumber(summary.clients)],
+      ["Con punto", formatNumber(summary.mapClients)],
+      ["Sin coordenadas", formatNumber(summary.missingCoordinates)],
+      ["Conflictos A/I", formatNumber(summary.statusConflicts)]
+    ])}
+    <div class="rank-block">
+      <span>Mejor cobertura</span>
+      <ul>${coverageRows || "<li><span>Sin fuentes</span><strong>0%</strong></li>"}</ul>
+    </div>
+  `;
 }
 
 function colorForUmapLayer(layer, feature) {
@@ -504,9 +1039,19 @@ function renderEditHandles() {
 
 function selectZone(zoneId) {
   selectedZoneId = zoneId;
+  selectedClientId = null;
   if (zoneById.get(zoneId)?.editable === false) {
     editing = false;
   }
+  updateEditor();
+  render();
+}
+
+function selectClient(clientId) {
+  const client = commercialClientById.get(clientId);
+  if (!client) return;
+  selectedClientId = clientId;
+  selectedZoneId = client.zoneId;
   updateEditor();
   render();
 }
@@ -582,8 +1127,13 @@ function fitInitialView() {
 }
 
 function render() {
+  renderDashboard();
   renderZoneControls();
   renderZones();
+  renderClientStatusControls();
+  renderCommercialClients();
+  renderDrilldown();
+  renderDataDiagnostic();
   renderUmapControls();
   renderUmapLayers();
   renderCaba();
@@ -606,6 +1156,17 @@ toggleCaba.addEventListener("change", () => {
 toggleReference.addEventListener("change", () => {
   showReference = toggleReference.checked;
   renderReferencePoints();
+});
+toggleCommercialClients.addEventListener("change", () => {
+  showCommercialClients = toggleCommercialClients.checked;
+  renderCommercialClients();
+  renderDrilldown();
+});
+dashboardTabs.forEach((button) => {
+  button.addEventListener("click", () => {
+    activeDashboardTab = button.dataset.dashboardTab;
+    renderDashboard();
+  });
 });
 
 fillZoneSelect();

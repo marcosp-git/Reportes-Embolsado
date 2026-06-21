@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Lagomarsino S.A. - Mapa Comercial Embolsado</title>
-    <link rel="stylesheet" href="/styles.css?v=20260619-15" />
+    <link rel="stylesheet" href="/styles.css?v=20260619-11" />
   </head>
   <body>
     <main class="app-shell">
@@ -23,6 +23,21 @@
       </section>
 
       <aside class="control-panel" aria-label="Panel territorial">
+        <section class="panel-section dashboard-panel">
+          <div class="section-heading">
+            <span>Tablero comercial</span>
+            <strong id="dashboard-period">Junio</strong>
+          </div>
+          <div id="dashboard-kpis" class="dashboard-kpis"></div>
+          <div class="dashboard-tabs" role="tablist" aria-label="Vistas del tablero">
+            <button class="dashboard-tab is-active" type="button" data-dashboard-tab="summary">Resumen</button>
+            <button class="dashboard-tab" type="button" data-dashboard-tab="teams">Jefes</button>
+            <button class="dashboard-tab" type="button" data-dashboard-tab="sellers">Corredores</button>
+            <button class="dashboard-tab" type="button" data-dashboard-tab="clients">Clientes</button>
+          </div>
+          <div id="dashboard-view" class="dashboard-view"></div>
+        </section>
+
         <section class="panel-section">
           <div class="section-heading">
             <span>Zonas tentativas</span>
@@ -53,6 +68,10 @@
             <span>Capas</span>
           </div>
           <label class="switch-row">
+            <input id="toggle-commercial-clients" type="checkbox" checked />
+            <span>Mostrar clientes Excel</span>
+          </label>
+          <label class="switch-row">
             <input id="toggle-caba" type="checkbox" checked />
             <span>Mostrar traza San Martin</span>
           </label>
@@ -60,6 +79,21 @@
             <input id="toggle-reference" type="checkbox" checked />
             <span>Mostrar puntos de referencia</span>
           </label>
+        </section>
+
+        <section class="panel-section client-panel">
+          <div class="section-heading compact">
+            <span>Clientes Excel</span>
+            <strong id="commercial-client-count">0</strong>
+          </div>
+          <div id="client-status-controls" class="status-controls"></div>
+        </section>
+
+        <section class="panel-section drilldown-panel">
+          <div class="section-heading compact">
+            <span>Detalle mapa</span>
+          </div>
+          <div id="drilldown-content" class="drilldown-content"></div>
         </section>
 
         <section class="panel-section umap-panel">
@@ -74,11 +108,11 @@
         <section class="panel-section summary-panel">
           <div class="metric-row">
             <span>Clientes</span>
-            <strong id="clients-status">uMap importado</strong>
+            <strong id="clients-status">pendiente Excel</strong>
           </div>
           <div class="metric-row">
-            <span>Ventas</span>
-            <strong>no cargadas</strong>
+            <span>Volumen</span>
+            <strong id="volume-status">local</strong>
           </div>
           <div class="metric-row">
             <span>Capas uMap</span>
@@ -88,6 +122,13 @@
             <span>CABA</span>
             <strong>CABA 1 / 2</strong>
           </div>
+        </section>
+
+        <section class="panel-section data-panel">
+          <div class="section-heading compact">
+            <span>Diagnostico datos</span>
+          </div>
+          <div id="data-diagnostic" class="diagnostic-list"></div>
         </section>
 
         <div class="panel-footer">
@@ -102,9 +143,11 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
-    <script src="/data.js?v=20260619-15"></script>
-    <script src="/caba-zones.js?v=20260619-15"></script>
-    <script src="/umap-data.js?v=20260619-15"></script>
-    <script src="/app.js?v=20260619-15"></script>
+    <script src="/data.js?v=20260619-11"></script>
+    <script src="/caba-zones.js?v=20260619-11"></script>
+    <script src="/umap-data.js?v=20260619-11"></script>
+    <script src="/commercial-data.js?v=local-v16"></script>
+    <script src="/dashboard-data.js?v=local-v16"></script>
+    <script src="/app.js?v=20260619-11"></script>
   </body>
 </html>
