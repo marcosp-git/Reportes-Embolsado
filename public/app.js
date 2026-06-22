@@ -262,12 +262,20 @@ function progressBar(value) {
   return `<div class="progress-track"><span class="${performanceClass(value)}" style="width:${Math.min(pct, 100)}%"></span></div>`;
 }
 
+function kpiDetailRows(rows) {
+  return `
+    <dl class="kpi-detail">
+      ${rows.map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${value}</dd></div>`).join("")}
+    </dl>
+  `;
+}
+
 function dashboardMetricCard(label, value, detail, tone = "neutral") {
   return `
     <article class="kpi-card ${tone}">
       <span>${escapeHtml(label)}</span>
       <strong>${value}</strong>
-      <small>${detail}</small>
+      <div class="kpi-card-detail">${detail}</div>
     </article>
   `;
 }
@@ -323,25 +331,39 @@ function renderDashboardKpis() {
     dashboardMetricCard(
       "Harinas cumplimiento a fecha",
       formatPercent(haeTotal.vsToDate || totals.haeVsToDate, 0),
-      `Obj mes ${formatBagsAndTons(haeTotal.objective || totals.haeObjective)} · Obj fecha ${formatBagsAndTons(haeTotal.objectiveToDate)} · Real ${formatBagsAndTons(haeTotal.actual || totals.haeActual)}`,
+      kpiDetailRows([
+        ["Obj mes", formatBagsAndTons(haeTotal.objective || totals.haeObjective)],
+        ["Obj fecha", formatBagsAndTons(haeTotal.objectiveToDate)],
+        ["Real", formatBagsAndTons(haeTotal.actual || totals.haeActual)]
+      ]),
       performanceClass(haeTotal.vsToDate || totals.haeVsToDate)
     ),
     dashboardMetricCard(
       "Harinas requerido diario",
       formatBagsAndTons(requiredDailyToClose(haeTotal)),
-      `${formatBagsAndTons(haeGap)} restantes en ${formatNumber(remainingBusinessDays())} dias habiles`,
+      kpiDetailRows([
+        ["Restante", formatBagsAndTons(haeGap)],
+        ["Dias habiles", formatNumber(remainingBusinessDays())]
+      ]),
       haeGap <= 0 ? "good" : "watch"
     ),
     dashboardMetricCard(
       "Premezclas cumplimiento a fecha",
       formatPercent(preTotal.vsToDate || totals.premezclasVsToDate, 0),
-      `Obj mes ${formatVolume(preTotal.objective || totals.premezclasObjective)} · Obj fecha ${formatVolume(preTotal.objectiveToDate)} · Real ${formatVolume(preTotal.actual || totals.premezclasActual)}`,
+      kpiDetailRows([
+        ["Obj mes", formatBagsAndTons(preTotal.objective || totals.premezclasObjective)],
+        ["Obj fecha", formatBagsAndTons(preTotal.objectiveToDate)],
+        ["Real", formatBagsAndTons(preTotal.actual || totals.premezclasActual)]
+      ]),
       performanceClass(preTotal.vsToDate || totals.premezclasVsToDate)
     ),
     dashboardMetricCard(
       "Premezclas requerido diario",
-      formatVolume(requiredDailyToClose(preTotal)),
-      `${formatVolume(preGap)} bolsas restantes en ${formatNumber(remainingBusinessDays())} dias habiles`,
+      formatBagsAndTons(requiredDailyToClose(preTotal)),
+      kpiDetailRows([
+        ["Restante", formatBagsAndTons(preGap)],
+        ["Dias habiles", formatNumber(remainingBusinessDays())]
+      ]),
       preGap <= 0 ? "good" : "watch"
     )
   ].join("");
@@ -729,7 +751,8 @@ function renderZoneDrilldown(zoneId) {
   const zoneClients = (commercialData.clients || []).filter((client) => client.zoneId === zoneId);
   const totalVolume = zoneClients.reduce((sum, client) => sum + (client.totalUm || 0), 0);
   const withVolume = zoneClients.filter((client) => client.totalUm > 0).length;
-  const topSellers = topBy(zoneClients, clientSeller, () => 1, 5);
+  const activeZoneClients = zoneClients.filter((client) => client.status === "A");
+  const topSellers = topBy(activeZoneClients, clientSeller, () => 1, 5);
   const topClients = [...zoneClients]
     .filter((client) => client.totalUm > 0)
     .sort((a, b) => b.totalUm - a.totalUm)
@@ -756,7 +779,7 @@ function renderZoneDrilldown(zoneId) {
         ["Estado", "framework"]
       ])}
       <div class="rank-block">
-        <span>Vendedores</span>
+        <span>Vendedores · clientes activos con punto</span>
         <ul>${sellerRows}</ul>
       </div>
       <div class="rank-block">

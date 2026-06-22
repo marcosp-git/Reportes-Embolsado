@@ -463,6 +463,41 @@ h1 {
   line-height: 1.25;
 }
 
+.kpi-card-detail {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.kpi-detail {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+.kpi-detail div {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 6px;
+  align-items: baseline;
+}
+
+.kpi-detail dt,
+.kpi-detail dd {
+  margin: 0;
+}
+
+.kpi-detail dt {
+  color: #64748b;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.kpi-detail dd {
+  color: #334155;
+  font-variant-numeric: tabular-nums;
+}
+
 .dashboard-tabs {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
