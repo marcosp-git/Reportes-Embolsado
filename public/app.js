@@ -182,6 +182,22 @@ function formatVolume(value) {
   return formatDecimal(value, value >= 1000 ? 0 : 1);
 }
 
+function bagsToTons(value) {
+  return (value || 0) / 40;
+}
+
+function formatTons(value) {
+  return `${formatDecimal(value, value >= 100 ? 0 : 1)} tn`;
+}
+
+function formatBagsAndTons(value) {
+  return `${formatVolume(value)} bls · ${formatTons(bagsToTons(value))}`;
+}
+
+function clientSeller(client) {
+  return client.sellerDisplay || client.seller || "Sin dato";
+}
+
 function formatPercent(value, digits = 0) {
   return new Intl.NumberFormat("es-AR", {
     style: "percent",
@@ -307,13 +323,13 @@ function renderDashboardKpis() {
     dashboardMetricCard(
       "Harinas cumplimiento a fecha",
       formatPercent(haeTotal.vsToDate || totals.haeVsToDate, 0),
-      `Obj mes ${formatVolume(haeTotal.objective || totals.haeObjective)} · Obj fecha ${formatVolume(haeTotal.objectiveToDate)} · Real ${formatVolume(haeTotal.actual || totals.haeActual)}`,
+      `Obj mes ${formatBagsAndTons(haeTotal.objective || totals.haeObjective)} · Obj fecha ${formatBagsAndTons(haeTotal.objectiveToDate)} · Real ${formatBagsAndTons(haeTotal.actual || totals.haeActual)}`,
       performanceClass(haeTotal.vsToDate || totals.haeVsToDate)
     ),
     dashboardMetricCard(
       "Harinas requerido diario",
-      formatVolume(requiredDailyToClose(haeTotal)),
-      `${formatVolume(haeGap)} bolsas restantes en ${formatNumber(remainingBusinessDays())} dias habiles`,
+      formatBagsAndTons(requiredDailyToClose(haeTotal)),
+      `${formatBagsAndTons(haeGap)} restantes en ${formatNumber(remainingBusinessDays())} dias habiles`,
       haeGap <= 0 ? "good" : "watch"
     ),
     dashboardMetricCard(
@@ -357,7 +373,7 @@ function renderSummaryDashboard() {
           </div>
           ${progressBar(hae.vsToDate)}
           <dl>
-            <dt>Vta Harinas</dt><dd>${formatVolume(hae.actual)}</dd>
+            <dt>Vta Harinas</dt><dd>${formatBagsAndTons(hae.actual)}</dd>
             <dt>Nuevos</dt><dd>${formatVolume(newRecovered.newActual || 0)}/${formatVolume(newRecovered.newObjective || 0)}</dd>
             <dt>Rec neta</dt><dd>${formatVolume(recoveredNet)}</dd>
           </dl>
@@ -368,7 +384,7 @@ function renderSummaryDashboard() {
 
   const zoneRows = (dashboardData.zoneVolume || [])
     .slice(0, 6)
-    .map((row) => `<li><span>${escapeHtml(row.zone)}</span><strong>${formatVolume(row.volume)}</strong></li>`)
+    .map((row) => `<li><span>${escapeHtml(row.zone)}</span><strong>${formatBagsAndTons(row.volume)}</strong></li>`)
     .join("");
 
   dashboardView.innerHTML = `
@@ -377,7 +393,7 @@ function renderSummaryDashboard() {
     </div>
     <div class="dashboard-split">
       <div class="rank-block">
-        <span>Volumen geolocalizado por zona</span>
+        <span>Volumen mensual por zona</span>
         <ul>${zoneRows}</ul>
       </div>
       <div class="rank-block">
@@ -411,11 +427,11 @@ function renderTeamsDashboard() {
       <tbody>
         ${tableRows(rows, [
           { render: (row) => `<strong>${escapeHtml(row.team)}</strong>` },
-          { align: "num", render: (row) => formatVolume(row.hae.objective) },
-          { align: "num", render: (row) => formatVolume(row.hae.objectiveToDate) },
-          { align: "num", render: (row) => formatVolume(row.hae.actual) },
+          { align: "num", render: (row) => formatBagsAndTons(row.hae.objective) },
+          { align: "num", render: (row) => formatBagsAndTons(row.hae.objectiveToDate) },
+          { align: "num", render: (row) => formatBagsAndTons(row.hae.actual) },
           { render: (row) => `${formatPercent(row.hae.vsToDate, 0)} ${progressBar(row.hae.vsToDate)}` },
-          { align: "num", render: (row) => formatVolume(requiredDailyToClose(row.hae)) },
+          { align: "num", render: (row) => formatBagsAndTons(requiredDailyToClose(row.hae)) },
           { render: (row) => `${formatPercent(row.pre.vsToDate, 0)} ${progressBar(row.pre.vsToDate)}` },
           { align: "num", render: (row) => formatVolume(requiredDailyToClose(row.pre)) },
           { align: "num", render: (row) => `${formatVolume(row.newRecovered.newActual || 0)}/${formatVolume(row.newRecovered.newObjective || 0)}` }
@@ -443,7 +459,7 @@ function renderSellersDashboard() {
         ${tableRows(sellers, [
           { render: (row) => `<strong>${escapeHtml(row.seller)}</strong>` },
           { render: (row) => escapeHtml(row.teamCode || "") },
-          { align: "num", render: (row) => formatVolume(row.haeActual) },
+          { align: "num", render: (row) => formatBagsAndTons(row.haeActual) },
           { align: "num", render: (row) => formatDecimal(row.totalTn, 1) },
           { align: "num", render: (row) => formatMoney(row.ppxKg).replace("$", "") },
           { align: "num", render: (row) => `${formatNumber(row.activeClients)} / ${formatNumber(row.inactiveClients)}` }
@@ -606,7 +622,7 @@ function popupForCommercialClient(client) {
       <strong>${escapeHtml(client.name || client.id)}</strong>
       <span><b>Cuenta:</b> ${escapeHtml(client.id)}</span>
       <span><b>Zona:</b> ${escapeHtml(client.zoneName)}</span>
-      <span><b>Vendedor:</b> ${escapeHtml(client.seller || "Sin dato")}</span>
+      <span><b>Vendedor:</b> ${escapeHtml(clientSeller(client))}</span>
       <span><b>Estado:</b> ${escapeHtml(statusLabel(client.status))}</span>
       <span><b>UM:</b> ${formatVolume(client.totalUm)}</span>
       ${families}
@@ -692,7 +708,7 @@ function renderClientDetail(client) {
       </div>
       ${metricList([
         ["Zona", escapeHtml(client.zoneName)],
-        ["Vendedor", escapeHtml(client.seller || "Sin dato")],
+        ["Vendedor", escapeHtml(clientSeller(client))],
         ["Estado", escapeHtml(statusLabel(client.status))],
         ["UM", formatVolume(client.totalUm)]
       ])}
@@ -713,7 +729,7 @@ function renderZoneDrilldown(zoneId) {
   const zoneClients = (commercialData.clients || []).filter((client) => client.zoneId === zoneId);
   const totalVolume = zoneClients.reduce((sum, client) => sum + (client.totalUm || 0), 0);
   const withVolume = zoneClients.filter((client) => client.totalUm > 0).length;
-  const topSellers = topBy(zoneClients, (client) => client.seller, () => 1, 5);
+  const topSellers = topBy(zoneClients, clientSeller, () => 1, 5);
   const topClients = [...zoneClients]
     .filter((client) => client.totalUm > 0)
     .sort((a, b) => b.totalUm - a.totalUm)

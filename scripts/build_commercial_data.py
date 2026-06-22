@@ -34,6 +34,13 @@ def norm_id(value: Any) -> str:
     return text
 
 
+def seller_key(value: Any) -> str:
+    text = norm_id(value)
+    if text.isdigit() and len(text) < 3:
+        return text.zfill(3)
+    return text
+
+
 def parse_number(value: Any) -> float:
     text = clean(value)
     if not text:
@@ -68,6 +75,33 @@ def top_items(counter: Counter[str], limit: int = 6) -> list[dict[str, Any]]:
     return [{"name": name, "um": round(value, 2)} for name, value in counter.most_common(limit) if value]
 
 
+def seller_names(workbook_path: Path) -> dict[str, str]:
+    counters: defaultdict[str, Counter[str]] = defaultdict(Counter)
+    if not workbook_path.exists():
+        return {}
+
+    for sheet_name in ("SM", "VEN MM I"):
+        try:
+            rows = read_sheet(workbook_path, sheet_name)
+        except KeyError:
+            continue
+        for row in rows:
+            code = seller_key(row.get("VENDEDOR") or row.get("V"))
+            name = clean(row.get("VENDEDOR_"))
+            if code and name:
+                counters[code][name.upper()] += 1
+
+    return {code: counter.most_common(1)[0][0] for code, counter in counters.items() if counter}
+
+
+def seller_display(code: str, names: dict[str, str]) -> str:
+    normalized = seller_key(code)
+    name = names.get(normalized)
+    if name and name != normalized:
+        return f"{name} ({normalized})"
+    return normalized or clean(code)
+
+
 def main() -> None:
     clients_path = AUDIT / "clients_normalized.csv"
     coverage_path = AUDIT / "fact_source_coverage.csv"
@@ -75,12 +109,14 @@ def main() -> None:
     conflict_path = AUDIT / "status_conflicts.csv"
     missing_path = AUDIT / "clients_without_coordinates.csv"
     volume_path = WORK / "VENDEDORES PARTICULARES" / "Volumen por Cliente" / "Volumen por cliente.xlsx"
+    clients_total_path = WORK / "VENDEDORES PARTICULARES" / "CLIENTES TOTALES.xlsx"
 
     if not clients_path.exists():
         raise SystemExit("Run scripts/audit_commercial_data.py first.")
 
     client_rows = read_csv(clients_path)
     clients_by_id = {norm_id(row["client_id"]): row for row in client_rows if norm_id(row.get("client_id"))}
+    seller_name_by_code = seller_names(clients_total_path)
 
     total_um: defaultdict[str, float] = defaultdict(float)
     family_um: defaultdict[str, Counter[str]] = defaultdict(Counter)
@@ -139,6 +175,7 @@ def main() -> None:
                 "id": client_id,
                 "name": row.get("name") or "",
                 "seller": row.get("seller") or "",
+                "sellerDisplay": seller_display(row.get("seller") or "", seller_name_by_code),
                 "status": row.get("status") or "SIN ESTADO",
                 "zoneId": row.get("zone_id") or "interior",
                 "zoneName": row.get("zone_name") or "Interior",

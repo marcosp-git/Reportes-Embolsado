@@ -307,26 +307,45 @@ def client_ranking() -> list[dict[str, Any]]:
     return sorted(clients, key=lambda item: item["total"], reverse=True)[:80]
 
 
+def monthly_bags_by_client() -> dict[str, float]:
+    rows = read_sheet(WORK / "PP2SJ 1.xlsx", "GEN")
+    by_client: dict[str, float] = defaultdict(float)
+    excluded_families = {"SUB", "VAR"}
+    for row in rows[1:]:
+        family = norm(row[1]) if len(row) > 1 else ""
+        client_id = clean(row[4]) if len(row) > 4 else ""
+        if not family or family in excluded_families or not client_id:
+            continue
+        by_client[client_id] += number(row[5]) / 25
+    return by_client
+
+
 def zone_volume() -> list[dict[str, Any]]:
     rows = read_csv_rows(AUDIT / "clients_normalized.csv")
-    volumes = {}
-    commercial_payload = ROOT / "public" / "commercial-data.js"
-    if commercial_payload.exists():
-        text = commercial_payload.read_text(encoding="utf-8")
-        raw = text.split("=", 1)[1].rsplit(";", 1)[0]
-        data = json.loads(raw)
-        for client in data.get("clients", []):
-            volumes[client["id"]] = client.get("totalUm", 0)
+    clients_by_id = {clean(row.get("client_id")): row for row in rows if clean(row.get("client_id"))}
+    by_zone: dict[str, dict[str, Any]] = defaultdict(
+        lambda: {"zone": "", "clients": 0, "mappedClients": 0, "volume": 0.0, "unmappedVolume": 0.0}
+    )
 
-    by_zone: dict[str, dict[str, Any]] = defaultdict(lambda: {"zone": "", "clients": 0, "mappedClients": 0, "volume": 0.0})
-    for row in rows:
-        zone = row.get("zone_name") or "Interior"
+    for client_id, volume in monthly_bags_by_client().items():
+        row = clients_by_id.get(client_id)
+        if not row or not row.get("lat") or not row.get("lon"):
+            zone = "Sin coordenadas"
+        else:
+            zone = row.get("zone_name") or "Interior"
         item = by_zone[zone]
         item["zone"] = zone
         item["clients"] += 1
-        if row.get("lat"):
+        if row and row.get("lat") and row.get("lon"):
             item["mappedClients"] += 1
-        item["volume"] += volumes.get(row.get("client_id"), 0.0)
+            item["volume"] += volume
+        else:
+            item["unmappedVolume"] += volume
+            item["volume"] += volume
+
+    for item in by_zone.values():
+        item["volume"] = round(item["volume"], 2)
+        item["unmappedVolume"] = round(item["unmappedVolume"], 2)
     return sorted(by_zone.values(), key=lambda item: item["volume"], reverse=True)
 
 
