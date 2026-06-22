@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Lagomarsino S.A. - Mapa Comercial Embolsado</title>
-    <link rel="stylesheet" href="/styles.css?v=20260619-11" />
+    <link rel="stylesheet" href="/styles.css?v=20260622-1" />
   </head>
   <body>
     <main class="app-shell">
@@ -40,10 +40,38 @@
 
         <section class="panel-section">
           <div class="section-heading">
-            <span>Zonas tentativas</span>
+            <span>Zonas</span>
             <strong id="zone-count">0</strong>
           </div>
           <div id="zone-filters" class="filter-list"></div>
+        </section>
+
+        <section class="panel-section drilldown-panel">
+          <div class="section-heading compact">
+            <span>Detalle mapa</span>
+          </div>
+          <div id="drilldown-content" class="drilldown-content"></div>
+        </section>
+
+        <section class="panel-section client-panel">
+          <div class="section-heading compact">
+            <span>Clientes Excel</span>
+            <strong id="commercial-client-count">0</strong>
+          </div>
+          <label class="switch-row standalone">
+            <input id="toggle-commercial-clients" type="checkbox" checked />
+            <span>Mostrar clientes Excel</span>
+          </label>
+          <div id="client-status-controls" class="status-controls"></div>
+        </section>
+
+        <section class="panel-section umap-panel">
+          <div class="section-heading compact">
+            <span>uMap Espacios Blancos</span>
+            <strong id="umap-layer-count">0</strong>
+          </div>
+          <div class="hint">Capas importadas del trabajo de espacios blancos: oportunidades, clientes y molinos.</div>
+          <div id="umap-layer-controls" class="umap-layer-controls"></div>
         </section>
 
         <section class="panel-section">
@@ -61,48 +89,6 @@
           </div>
           <textarea id="coordinates-editor" spellcheck="false"></textarea>
           <div id="editor-status" class="editor-status">Editor listo.</div>
-        </section>
-
-        <section class="panel-section">
-          <div class="section-heading compact">
-            <span>Capas</span>
-          </div>
-          <label class="switch-row">
-            <input id="toggle-commercial-clients" type="checkbox" checked />
-            <span>Mostrar clientes Excel</span>
-          </label>
-          <label class="switch-row">
-            <input id="toggle-caba" type="checkbox" checked />
-            <span>Mostrar traza San Martin</span>
-          </label>
-          <label class="switch-row">
-            <input id="toggle-reference" type="checkbox" checked />
-            <span>Mostrar puntos de referencia</span>
-          </label>
-        </section>
-
-        <section class="panel-section client-panel">
-          <div class="section-heading compact">
-            <span>Clientes Excel</span>
-            <strong id="commercial-client-count">0</strong>
-          </div>
-          <div id="client-status-controls" class="status-controls"></div>
-        </section>
-
-        <section class="panel-section drilldown-panel">
-          <div class="section-heading compact">
-            <span>Detalle mapa</span>
-          </div>
-          <div id="drilldown-content" class="drilldown-content"></div>
-        </section>
-
-        <section class="panel-section umap-panel">
-          <div class="section-heading compact">
-            <span>uMap Espacios Blancos</span>
-            <strong id="umap-layer-count">0</strong>
-          </div>
-          <div class="hint">Capas importadas del trabajo de espacios blancos: oportunidades, clientes y molinos.</div>
-          <div id="umap-layer-controls" class="umap-layer-controls"></div>
         </section>
 
         <section class="panel-section summary-panel">
@@ -143,11 +129,11 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
-    <script src="/data.js?v=20260619-11"></script>
-    <script src="/caba-zones.js?v=20260619-11"></script>
-    <script src="/umap-data.js?v=20260619-11"></script>
-    <script src="/commercial-data.js?v=local-v16"></script>
-    <script src="/dashboard-data.js?v=local-v16"></script>
-    <script src="/app.js?v=20260619-11"></script>
+    <script src="/data.js?v=20260622-1"></script>
+    <script src="/caba-zones.js?v=20260622-1"></script>
+    <script src="/umap-data.js?v=20260622-1"></script>
+    <script src="/commercial-data.js?v=20260622-1"></script>
+    <script src="/dashboard-data.js?v=20260622-1"></script>
+    <script src="/app.js?v=20260622-1"></script>
   </body>
 </html>

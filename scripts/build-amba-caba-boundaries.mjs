@@ -14,6 +14,12 @@ vm.runInContext(await readFile(cabaPath, "utf8"), context);
 const data = context.window.EMBOLSADO_MAP_DATA;
 const caba = context.window.EMBOLSADO_CABA_ZONES;
 const rules = JSON.parse(await readFile(rulesPath, "utf8"));
+const topologyNote = "Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.";
+const cleanDescription = (description = "") =>
+  description
+    .replaceAll(topologyNote, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 
 const roundCoord = (value) => Number(value.toFixed(6));
 const closeRing = (ring) => {
@@ -87,7 +93,7 @@ priority.forEach((zoneId) => {
 
   nextZonesById.set(zone.id, {
     ...zone,
-    description: `${zone.description} Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.`,
+    description: `${cleanDescription(zone.description)} ${topologyNote}`,
     cabaBoundarySource: "generated-official-caba-mask",
     topologySource: "generated-amba-priority-mask",
     coordinates: toLatLngMultiPolygon(clipped)

@@ -1,11 +1,11 @@
 {
-  "note": "Tentative AMBA source polygons. Coordinates are [lng, lat]. CABA is subtracted first, then zones are assigned by priority to avoid overlaps. Oeste includes the urban corridor through Gonzalez Catan, Esperanza and Virrey del Pino; Spegazzini stays on the AMBA Sur side of the operational boundary.",
+  "note": "AMBA source polygons. Coordinates are [lng, lat]. CABA is subtracted first, then zones are assigned by priority to avoid overlaps. Norte/Oeste use the Ferrocarril San Martin corridor through Hurlingham, San Miguel, Jose C. Paz, Derqui and Manzanares as operational boundary. Open Door and Lujan remain south of that railway in AMBA Oeste. Oeste includes the urban corridor through Gonzalez Catan, Esperanza and Virrey del Pino; Spegazzini stays on the AMBA Sur side of the operational boundary.",
   "priority": ["amba-norte", "amba-oeste", "amba-sur"],
   "sourceOverrides": {
     "amba-norte": [
       [
-        [-59.18, -34.64],
-        [-59.16, -34.235],
+        [-59.025, -34.44],
+        [-59.13, -34.32],
         [-59.025, -34.095],
         [-58.63, -34.245],
         [-58.465, -34.415],
@@ -13,17 +13,25 @@
         [-58.385, -34.535],
         [-58.43, -34.565],
         [-58.54, -34.565],
-        [-58.61, -34.61],
-        [-58.735, -34.61],
-        [-58.985, -34.56],
-        [-59.18, -34.64]
+        [-58.6, -34.57],
+        [-58.635, -34.59],
+        [-58.705, -34.55],
+        [-58.755, -34.525],
+        [-58.835, -34.495],
+        [-59.025, -34.44]
       ]
     ],
     "amba-oeste": [
       [
         [-59.18, -34.64],
-        [-58.985, -34.56],
-        [-58.735, -34.61],
+        [-59.18, -34.5],
+        [-59.08, -34.45],
+        [-59.025, -34.44],
+        [-58.835, -34.495],
+        [-58.755, -34.525],
+        [-58.705, -34.55],
+        [-58.635, -34.59],
+        [-58.6, -34.57],
         [-58.54, -34.565],
         [-58.47, -34.64],
         [-58.505, -34.72],

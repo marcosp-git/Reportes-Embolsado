@@ -37,7 +37,7 @@ window.EMBOLSADO_MAP_DATA = {
       "manager": "Hernán",
       "color": "#047857",
       "defaultVisible": true,
-      "description": "Zona tentativa de GBA norte hasta Zarate. CABA 1 se administra por el mismo jefe. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
+      "description": "Zona tentativa de GBA norte hasta Zarate. CABA 1 se administra por el mismo jefe. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
       "labelPosition": [
         -34.35,
         -58.82
@@ -46,20 +46,32 @@ window.EMBOLSADO_MAP_DATA = {
         [
           [
             [
-              -34.64,
-              -59.18
+              -34.32,
+              -59.13
             ],
             [
-              -34.56,
-              -58.985
+              -34.44,
+              -59.025
             ],
             [
-              -34.61,
-              -58.735
+              -34.495,
+              -58.835
             ],
             [
-              -34.61,
-              -58.61
+              -34.525,
+              -58.755
+            ],
+            [
+              -34.55,
+              -58.705
+            ],
+            [
+              -34.59,
+              -58.635
+            ],
+            [
+              -34.57,
+              -58.6
             ],
             [
               -34.565,
@@ -3858,12 +3870,8 @@ window.EMBOLSADO_MAP_DATA = {
               -59.025
             ],
             [
-              -34.235,
-              -59.16
-            ],
-            [
-              -34.64,
-              -59.18
+              -34.32,
+              -59.13
             ]
           ]
         ]
@@ -3877,7 +3885,7 @@ window.EMBOLSADO_MAP_DATA = {
       "manager": "Pablo",
       "color": "#2563eb",
       "defaultVisible": true,
-      "description": "Zona tentativa de GBA oeste. CABA 2 se administra por el mismo jefe. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
+      "description": "Zona tentativa de GBA oeste. CABA 2 se administra por el mismo jefe. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
       "labelPosition": [
         -34.69,
         -58.82
@@ -4186,16 +4194,36 @@ window.EMBOLSADO_MAP_DATA = {
               -58.54
             ],
             [
-              -34.61,
-              -58.61
+              -34.57,
+              -58.6
             ],
             [
-              -34.61,
-              -58.735
+              -34.59,
+              -58.635
             ],
             [
-              -34.56,
-              -58.985
+              -34.55,
+              -58.705
+            ],
+            [
+              -34.525,
+              -58.755
+            ],
+            [
+              -34.495,
+              -58.835
+            ],
+            [
+              -34.44,
+              -59.025
+            ],
+            [
+              -34.45,
+              -59.08
+            ],
+            [
+              -34.5,
+              -59.18
             ],
             [
               -34.64,
@@ -4213,7 +4241,7 @@ window.EMBOLSADO_MAP_DATA = {
       "manager": "Gustavo",
       "color": "#dc2626",
       "defaultVisible": true,
-      "description": "Zona tentativa de GBA sur incluyendo La Plata. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
+      "description": "Zona tentativa de GBA sur incluyendo La Plata. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
       "labelPosition": [
         -34.9,
         -58.28
@@ -7065,17 +7093,17 @@ window.EMBOLSADO_MAP_DATA = {
       "amba-oeste",
       "amba-sur"
     ],
-    "generatedAt": "2026-06-19T20:03:42.200Z",
+    "generatedAt": "2026-06-22T20:59:20.809Z",
     "stats": {
       "amba-norte": {
-        "sourceArea": 0.2781000000001086,
-        "clippedArea": 0.27608707219155804,
+        "sourceArea": 0.19736250000005384,
+        "clippedArea": 0.19534957219150328,
         "polygons": 1,
         "rings": 1
       },
       "amba-oeste": {
-        "sourceArea": 0.2271125000000893,
-        "clippedArea": 0.22095064835468747,
+        "sourceArea": 0.2821999999998752,
+        "clippedArea": 0.2788506483544779,
         "polygons": 1,
         "rings": 1
       },

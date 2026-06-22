@@ -32,8 +32,6 @@ const visibleClientStatuses = new Set(["A", "I", "CONFLICTO A/I", "SIN ESTADO"])
 let selectedZoneId = zones[0].id;
 let selectedClientId = null;
 let editing = false;
-let showCaba = true;
-let showReference = true;
 let showCommercialClients = true;
 let activeDashboardTab = "summary";
 
@@ -51,8 +49,6 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 
 const zoneLayer = L.layerGroup().addTo(map);
 const labelLayer = L.layerGroup().addTo(map);
-const cabaLayer = L.layerGroup().addTo(map);
-const referenceLayer = L.layerGroup().addTo(map);
 const editLayer = L.layerGroup().addTo(map);
 const umapLayer = L.layerGroup().addTo(map);
 const commercialClientLayer = L.layerGroup().addTo(map);
@@ -79,8 +75,6 @@ const fitMapButton = document.getElementById("fit-map");
 const toggleEditButton = document.getElementById("toggle-edit");
 const applyCoordinatesButton = document.getElementById("apply-coordinates");
 const copyConfigButton = document.getElementById("copy-config");
-const toggleCaba = document.getElementById("toggle-caba");
-const toggleReference = document.getElementById("toggle-reference");
 const toggleCommercialClients = document.getElementById("toggle-commercial-clients");
 
 function isNestedCoordinates(coordinates) {
@@ -312,6 +306,17 @@ function teamSummary(team) {
   return { team, hae, pre, newRecovered, activity };
 }
 
+function teamMetricRows(metric, compact = false) {
+  return `
+    <div class="team-metric-rows ${compact ? "compact" : ""}">
+      <div><span>Obj mes</span><strong>${formatBagsAndTons(metric.objective)}</strong></div>
+      <div><span>Obj fecha</span><strong>${formatBagsAndTons(metric.objectiveToDate)}</strong></div>
+      <div><span>Real</span><strong>${formatBagsAndTons(metric.actual)}</strong></div>
+      <div><span>Req/dia</span><strong>${formatBagsAndTons(requiredDailyToClose(metric))}</strong></div>
+    </div>
+  `;
+}
+
 function renderDashboardKpis() {
   if (!dashboardKpis) return;
   const totals = dashboardData.totals || {};
@@ -389,13 +394,20 @@ function renderSummaryDashboard() {
       const recoveredNet = (newRecovered.recoveredActual || 0) - (newRecovered.lostClients || 0);
       return `
         <article class="team-card">
-          <div>
+          <div class="team-card-heading">
             <strong>${escapeHtml(team)}</strong>
-            <span>Harinas ${formatPercent(hae.vsToDate, 0)} · Pre ${formatPercent(pre.vsToDate, 0)}</span>
+            <span class="${performanceClass(hae.vsToDate)}">${formatPercent(hae.vsToDate, 0)} Harinas</span>
           </div>
           ${progressBar(hae.vsToDate)}
-          <dl>
-            <dt>Vta Harinas</dt><dd>${formatBagsAndTons(hae.actual)}</dd>
+          <div class="team-product-block">
+            <span>Harinas</span>
+            ${teamMetricRows(hae)}
+          </div>
+          <div class="team-product-block secondary">
+            <span>Premezclas · ${formatPercent(pre.vsToDate, 0)}</span>
+            ${teamMetricRows(pre, true)}
+          </div>
+          <dl class="team-mini-stats">
             <dt>Nuevos</dt><dd>${formatVolume(newRecovered.newActual || 0)}/${formatVolume(newRecovered.newObjective || 0)}</dd>
             <dt>Rec neta</dt><dd>${formatVolume(recoveredNet)}</dd>
           </dl>
@@ -579,46 +591,6 @@ function renderZones() {
         })
       }).addTo(labelLayer);
     });
-}
-
-function renderCaba() {
-  cabaLayer.clearLayers();
-  if (!showCaba) return;
-
-  if (!cabaData.splitLine.length) return;
-
-  L.polyline(cabaData.splitLine.map((point) => [point.lat, point.lng]), {
-    color: "#111827",
-    weight: 2,
-    opacity: 0.9,
-    dashArray: "6 6"
-  })
-    .bindPopup(`<strong>Ferrocarril San Martin</strong><br><span class="excluded-area">Delimitador operativo entre CABA 1 y CABA 2.</span>`)
-    .addTo(cabaLayer);
-}
-
-function renderReferencePoints() {
-  referenceLayer.clearLayers();
-  if (!showReference) return;
-
-  data.referencePoints.forEach((point) => {
-    L.marker([point.lat, point.lng], {
-      icon: L.divIcon({
-        className: "reference-marker-wrap",
-        html: '<span class="reference-marker"></span>',
-        iconSize: [16, 16],
-        iconAnchor: [8, 8],
-        popupAnchor: [0, -8]
-      })
-    })
-      .bindPopup(`
-        <div class="popup-card">
-          <strong>${point.name}</strong>
-          <span>${point.detail}</span>
-        </div>
-      `)
-      .addTo(referenceLayer);
-  });
 }
 
 function filteredCommercialClients() {
@@ -1216,8 +1188,6 @@ function render() {
   renderDataDiagnostic();
   renderUmapControls();
   renderUmapLayers();
-  renderCaba();
-  renderReferencePoints();
   renderEditHandles();
 }
 
@@ -1229,14 +1199,6 @@ toggleEditButton.addEventListener("click", () => {
 });
 applyCoordinatesButton.addEventListener("click", applyCoordinates);
 copyConfigButton.addEventListener("click", copyConfig);
-toggleCaba.addEventListener("change", () => {
-  showCaba = toggleCaba.checked;
-  renderCaba();
-});
-toggleReference.addEventListener("change", () => {
-  showReference = toggleReference.checked;
-  renderReferencePoints();
-});
 toggleCommercialClients.addEventListener("change", () => {
   showCommercialClients = toggleCommercialClients.checked;
   renderCommercialClients();
