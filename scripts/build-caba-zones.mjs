@@ -144,7 +144,7 @@ await writeFile(
       {
         id: "caba-1",
         name: "CABA 1",
-        manager: "Jefe de Venta AMBA Norte",
+        manager: "Hernán",
         color: "#059669",
         defaultVisible: true,
         editable: false,
@@ -155,7 +155,7 @@ await writeFile(
       {
         id: "caba-2",
         name: "CABA 2",
-        manager: "Jefe de Venta AMBA Oeste",
+        manager: "Pablo",
         color: "#1d4ed8",
         defaultVisible: true,
         editable: false,

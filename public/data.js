@@ -34,7 +34,7 @@ window.EMBOLSADO_MAP_DATA = {
     {
       "id": "amba-norte",
       "name": "AMBA Norte",
-      "manager": "Jefe de Venta AMBA Norte",
+      "manager": "Hernán",
       "color": "#047857",
       "defaultVisible": true,
       "description": "Zona tentativa de GBA norte hasta Zarate. CABA 1 se administra por el mismo jefe. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
@@ -3874,7 +3874,7 @@ window.EMBOLSADO_MAP_DATA = {
     {
       "id": "amba-oeste",
       "name": "AMBA Oeste",
-      "manager": "Jefe de Venta AMBA Oeste",
+      "manager": "Pablo",
       "color": "#2563eb",
       "defaultVisible": true,
       "description": "Zona tentativa de GBA oeste. CABA 2 se administra por el mismo jefe. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
@@ -4210,7 +4210,7 @@ window.EMBOLSADO_MAP_DATA = {
     {
       "id": "amba-sur",
       "name": "AMBA Sur",
-      "manager": "Jefe de Venta AMBA Sur",
+      "manager": "Gustavo",
       "color": "#dc2626",
       "defaultVisible": true,
       "description": "Zona tentativa de GBA sur incluyendo La Plata. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
@@ -6842,7 +6842,7 @@ window.EMBOLSADO_MAP_DATA = {
     {
       "id": "interior",
       "name": "Interior",
-      "manager": "Jefe de Venta Interior",
+      "manager": "José",
       "color": "#7c3aed",
       "defaultVisible": true,
       "description": "Resto del pais para analizar ventas fuera de AMBA.",
