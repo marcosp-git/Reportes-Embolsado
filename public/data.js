@@ -3,7 +3,7 @@ window.EMBOLSADO_MAP_DATA = {
   "company": "Lagomarsino S.A.",
   "channel": "Embolsado",
   "notes": {
-    "caba": "CABA se divide comercialmente en CABA 1 y CABA 2 por la traza operativa del Ferrocarril San Martin.",
+    "caba": "CABA se divide comercialmente en CABA Norte y CABA Sur por la traza operativa del Ferrocarril San Martin.",
     "sales": "No hay ventas cargadas todavia.",
     "clients": "Los clientes reales geolocalizados se cargaran luego desde Exceles actuales."
   },
@@ -37,7 +37,7 @@ window.EMBOLSADO_MAP_DATA = {
       "manager": "Hernán",
       "color": "#047857",
       "defaultVisible": true,
-      "description": "Zona tentativa de GBA norte hasta Zarate. CABA 1 se administra por el mismo jefe. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
+      "description": "Zona tentativa de GBA norte hasta Zarate. CABA Norte se administra por el mismo jefe. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
       "labelPosition": [
         -34.35,
         -58.82
@@ -74,7 +74,7 @@ window.EMBOLSADO_MAP_DATA = {
               -58.6
             ],
             [
-              -34.603,
+              -34.602,
               -58.565
             ],
             [
@@ -3949,7 +3949,7 @@ window.EMBOLSADO_MAP_DATA = {
       "manager": "Pablo",
       "color": "#2563eb",
       "defaultVisible": true,
-      "description": "Zona tentativa de GBA oeste. CABA 2 se administra por el mismo jefe. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
+      "description": "Zona tentativa de GBA oeste. CABA Sur se administra por el mismo jefe. Limite CABA recalculado contra geometria oficial GCBA. Limites recalculados contra CABA oficial, tierra y prioridad AMBA sin solapes.",
       "labelPosition": [
         -34.69,
         -58.82
@@ -4258,7 +4258,7 @@ window.EMBOLSADO_MAP_DATA = {
               -58.532
             ],
             [
-              -34.603,
+              -34.602,
               -58.565
             ],
             [
@@ -7161,17 +7161,17 @@ window.EMBOLSADO_MAP_DATA = {
       "amba-oeste",
       "amba-sur"
     ],
-    "generatedAt": "2026-06-22T23:00:09.241Z",
+    "generatedAt": "2026-06-22T23:08:07.982Z",
     "stats": {
       "amba-norte": {
-        "sourceArea": 0.20170199999995475,
-        "clippedArea": 0.19866973342857364,
+        "sourceArea": 0.2016679999999269,
+        "clippedArea": 0.1986357334285458,
         "polygons": 1,
         "rings": 1
       },
       "amba-oeste": {
-        "sourceArea": 0.27976049999983843,
-        "clippedArea": 0.2758983678901359,
+        "sourceArea": 0.2797944999998663,
+        "clippedArea": 0.27593236789016373,
         "polygons": 1,
         "rings": 1
       },

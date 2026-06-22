@@ -143,7 +143,7 @@ await writeFile(
     zones: [
       {
         id: "caba-1",
-        name: "CABA 1",
+        name: "CABA Norte",
         manager: "Hernán",
         color: "#059669",
         defaultVisible: true,
@@ -154,7 +154,7 @@ await writeFile(
       },
       {
         id: "caba-2",
-        name: "CABA 2",
+        name: "CABA Sur",
         manager: "Pablo",
         color: "#1d4ed8",
         defaultVisible: true,
