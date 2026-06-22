@@ -256,6 +256,17 @@ function dashboardMetricCard(label, value, detail, tone = "neutral") {
   `;
 }
 
+function remainingBusinessDays() {
+  const period = dashboardData.period || {};
+  return Math.max(0, (period.monthDays || 0) - (period.countedDays || 0));
+}
+
+function requiredDailyToClose(metric) {
+  const days = remainingBusinessDays();
+  if (!days) return 0;
+  return Math.max(0, ((metric?.objective || 0) - (metric?.actual || 0)) / days);
+}
+
 function getProjected(category, team) {
   return (dashboardData.projected || []).find((item) => item.category === category && item.team === team);
 }
@@ -281,8 +292,10 @@ function renderDashboardKpis() {
   if (!dashboardKpis) return;
   const totals = dashboardData.totals || {};
   const period = dashboardData.period || {};
-  const haeGap = (totals.haeObjective || 0) - (totals.haeActual || 0);
-  const preGap = (totals.premezclasObjective || 0) - (totals.premezclasActual || 0);
+  const haeTotal = getProjected("HAE", "TOTAL") || {};
+  const preTotal = getProjected("PREMEZCLAS", "TOTAL") || {};
+  const haeGap = (haeTotal.objective || totals.haeObjective || 0) - (haeTotal.actual || totals.haeActual || 0);
+  const preGap = (preTotal.objective || totals.premezclasObjective || 0) - (preTotal.actual || totals.premezclasActual || 0);
 
   if (dashboardPeriod) {
     dashboardPeriod.textContent = period.countedDays
@@ -291,10 +304,30 @@ function renderDashboardKpis() {
   }
 
   dashboardKpis.innerHTML = [
-    dashboardMetricCard("HAE a fecha", formatPercent(totals.haeVsToDate, 0), `${formatVolume(totals.haeActual)} de ${formatVolume(totals.haeObjective)} bls`, performanceClass(totals.haeVsToDate)),
-    dashboardMetricCard("Gap HAE mes", formatVolume(haeGap), "bolsas restantes", haeGap <= 0 ? "good" : "watch"),
-    dashboardMetricCard("Premezclas a fecha", formatPercent(totals.premezclasVsToDate, 0), `${formatVolume(totals.premezclasActual)} de ${formatVolume(totals.premezclasObjective)} bls`, performanceClass(totals.premezclasVsToDate)),
-    dashboardMetricCard("Gap Premezclas", formatVolume(preGap), "bolsas restantes", preGap <= 0 ? "good" : "watch")
+    dashboardMetricCard(
+      "HAE cumplimiento a fecha",
+      formatPercent(haeTotal.vsToDate || totals.haeVsToDate, 0),
+      `Obj mes ${formatVolume(haeTotal.objective || totals.haeObjective)} · Obj fecha ${formatVolume(haeTotal.objectiveToDate)} · Real ${formatVolume(haeTotal.actual || totals.haeActual)}`,
+      performanceClass(haeTotal.vsToDate || totals.haeVsToDate)
+    ),
+    dashboardMetricCard(
+      "HAE requerido diario",
+      formatVolume(requiredDailyToClose(haeTotal)),
+      `${formatVolume(haeGap)} bolsas restantes en ${formatNumber(remainingBusinessDays())} dias habiles`,
+      haeGap <= 0 ? "good" : "watch"
+    ),
+    dashboardMetricCard(
+      "Premezclas cumplimiento a fecha",
+      formatPercent(preTotal.vsToDate || totals.premezclasVsToDate, 0),
+      `Obj mes ${formatVolume(preTotal.objective || totals.premezclasObjective)} · Obj fecha ${formatVolume(preTotal.objectiveToDate)} · Real ${formatVolume(preTotal.actual || totals.premezclasActual)}`,
+      performanceClass(preTotal.vsToDate || totals.premezclasVsToDate)
+    ),
+    dashboardMetricCard(
+      "Premezclas requerido diario",
+      formatVolume(requiredDailyToClose(preTotal)),
+      `${formatVolume(preGap)} bolsas restantes en ${formatNumber(remainingBusinessDays())} dias habiles`,
+      preGap <= 0 ? "good" : "watch"
+    )
   ].join("");
 }
 
@@ -365,21 +398,27 @@ function renderTeamsDashboard() {
       <thead>
         <tr>
           <th>Equipo</th>
-          <th>HAE</th>
-          <th>Gap HAE</th>
-          <th>Premezclas</th>
+          <th>HAE obj mes</th>
+          <th>HAE obj fecha</th>
+          <th>HAE real</th>
+          <th>HAE %</th>
+          <th>HAE req/dia</th>
+          <th>Pre %</th>
+          <th>Pre req/dia</th>
           <th>Nuevos</th>
-          <th>Recuperados</th>
         </tr>
       </thead>
       <tbody>
         ${tableRows(rows, [
           { render: (row) => `<strong>${escapeHtml(row.team)}</strong>` },
+          { align: "num", render: (row) => formatVolume(row.hae.objective) },
+          { align: "num", render: (row) => formatVolume(row.hae.objectiveToDate) },
+          { align: "num", render: (row) => formatVolume(row.hae.actual) },
           { render: (row) => `${formatPercent(row.hae.vsToDate, 0)} ${progressBar(row.hae.vsToDate)}` },
-          { align: "num", render: (row) => formatVolume((row.hae.objective || 0) - (row.hae.actual || 0)) },
+          { align: "num", render: (row) => formatVolume(requiredDailyToClose(row.hae)) },
           { render: (row) => `${formatPercent(row.pre.vsToDate, 0)} ${progressBar(row.pre.vsToDate)}` },
-          { align: "num", render: (row) => `${formatVolume(row.newRecovered.newActual || 0)}/${formatVolume(row.newRecovered.newObjective || 0)}` },
-          { align: "num", render: (row) => `${formatVolume(row.newRecovered.recoveredActual || 0)} rec · ${formatVolume(row.newRecovered.lostClients || 0)} perd` }
+          { align: "num", render: (row) => formatVolume(requiredDailyToClose(row.pre)) },
+          { align: "num", render: (row) => `${formatVolume(row.newRecovered.newActual || 0)}/${formatVolume(row.newRecovered.newObjective || 0)}` }
         ])}
       </tbody>
     </table>
