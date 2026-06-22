@@ -305,13 +305,13 @@ function renderDashboardKpis() {
 
   dashboardKpis.innerHTML = [
     dashboardMetricCard(
-      "HAE cumplimiento a fecha",
+      "Harinas cumplimiento a fecha",
       formatPercent(haeTotal.vsToDate || totals.haeVsToDate, 0),
       `Obj mes ${formatVolume(haeTotal.objective || totals.haeObjective)} · Obj fecha ${formatVolume(haeTotal.objectiveToDate)} · Real ${formatVolume(haeTotal.actual || totals.haeActual)}`,
       performanceClass(haeTotal.vsToDate || totals.haeVsToDate)
     ),
     dashboardMetricCard(
-      "HAE requerido diario",
+      "Harinas requerido diario",
       formatVolume(requiredDailyToClose(haeTotal)),
       `${formatVolume(haeGap)} bolsas restantes en ${formatNumber(remainingBusinessDays())} dias habiles`,
       haeGap <= 0 ? "good" : "watch"
@@ -353,11 +353,11 @@ function renderSummaryDashboard() {
         <article class="team-card">
           <div>
             <strong>${escapeHtml(team)}</strong>
-            <span>HAE ${formatPercent(hae.vsToDate, 0)} · Pre ${formatPercent(pre.vsToDate, 0)}</span>
+            <span>Harinas ${formatPercent(hae.vsToDate, 0)} · Pre ${formatPercent(pre.vsToDate, 0)}</span>
           </div>
           ${progressBar(hae.vsToDate)}
           <dl>
-            <dt>Vta HAE</dt><dd>${formatVolume(hae.actual)}</dd>
+            <dt>Vta Harinas</dt><dd>${formatVolume(hae.actual)}</dd>
             <dt>Nuevos</dt><dd>${formatVolume(newRecovered.newActual || 0)}/${formatVolume(newRecovered.newObjective || 0)}</dd>
             <dt>Rec neta</dt><dd>${formatVolume(recoveredNet)}</dd>
           </dl>
@@ -398,11 +398,11 @@ function renderTeamsDashboard() {
       <thead>
         <tr>
           <th>Equipo</th>
-          <th>HAE obj mes</th>
-          <th>HAE obj fecha</th>
-          <th>HAE real</th>
-          <th>HAE %</th>
-          <th>HAE req/dia</th>
+          <th>Harinas obj mes</th>
+          <th>Harinas obj fecha</th>
+          <th>Harinas real</th>
+          <th>Harinas %</th>
+          <th>Harinas req/dia</th>
           <th>Pre %</th>
           <th>Pre req/dia</th>
           <th>Nuevos</th>
@@ -433,7 +433,7 @@ function renderSellersDashboard() {
         <tr>
           <th>Corredor</th>
           <th>Jefe</th>
-          <th>HAE acum</th>
+          <th>Harinas acum</th>
           <th>TN 2SJ</th>
           <th>PP kg</th>
           <th>Activos</th>
