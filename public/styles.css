@@ -604,11 +604,23 @@ h1 {
 
 .team-metric-rows {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px 10px;
+  gap: 7px;
 }
 
-.team-metric-rows div {
+.team-compare,
+.team-followup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.team-compare {
+  border-bottom: 1px solid #e5edf4;
+  padding-bottom: 7px;
+}
+
+.team-metric-rows .team-compare > div,
+.team-metric-rows .team-followup > div {
   display: grid;
   gap: 2px;
   min-width: 0;
@@ -624,13 +636,22 @@ h1 {
 .team-metric-rows strong {
   overflow: hidden;
   color: var(--ink);
-  font-size: 12px;
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.team-followup strong {
+  color: #475569;
+  font-size: 11px;
+}
+
 .team-metric-rows.compact strong {
+  font-size: 12px;
+}
+
+.team-metric-rows.compact .team-followup strong {
   font-size: 11px;
 }
 

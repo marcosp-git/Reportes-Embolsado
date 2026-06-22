@@ -309,10 +309,14 @@ function teamSummary(team) {
 function teamMetricRows(metric, compact = false) {
   return `
     <div class="team-metric-rows ${compact ? "compact" : ""}">
-      <div><span>Obj mes</span><strong>${formatBagsAndTons(metric.objective)}</strong></div>
-      <div><span>Obj fecha</span><strong>${formatBagsAndTons(metric.objectiveToDate)}</strong></div>
-      <div><span>Real</span><strong>${formatBagsAndTons(metric.actual)}</strong></div>
-      <div><span>Req/dia</span><strong>${formatBagsAndTons(requiredDailyToClose(metric))}</strong></div>
+      <div class="team-compare">
+        <div><span>Obj fecha</span><strong>${formatBagsAndTons(metric.objectiveToDate)}</strong></div>
+        <div><span>Real</span><strong>${formatBagsAndTons(metric.actual)}</strong></div>
+      </div>
+      <div class="team-followup">
+        <div><span>Obj mes</span><strong>${formatBagsAndTons(metric.objective)}</strong></div>
+        <div><span>Req/dia</span><strong>${formatBagsAndTons(requiredDailyToClose(metric))}</strong></div>
+      </div>
     </div>
   `;
 }
