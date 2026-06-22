@@ -404,10 +404,12 @@ function renderSummaryDashboard() {
     })
     .join("");
 
-  const zoneRows = (dashboardData.zoneVolume || [])
-    .slice(0, 6)
+  const zoneVolumeRows = dashboardData.zoneVolume || [];
+  const zoneTotal = zoneVolumeRows.reduce((sum, row) => sum + (row.volume || 0), 0);
+  const zoneRows = zoneVolumeRows
     .map((row) => `<li><span>${escapeHtml(row.zone)}</span><strong>${formatBagsAndTons(row.volume)}</strong></li>`)
     .join("");
+  const zoneTotalRow = `<li class="rank-total"><span>Total HAE + HAF</span><strong>${formatBagsAndTons(zoneTotal)}</strong></li>`;
 
   dashboardView.innerHTML = `
     <div class="dashboard-grid">
@@ -415,8 +417,8 @@ function renderSummaryDashboard() {
     </div>
     <div class="dashboard-split">
       <div class="rank-block">
-        <span>Volumen mensual por zona</span>
-        <ul>${zoneRows}</ul>
+        <span>Harinas mensual por zona</span>
+        <ul>${zoneRows}${zoneTotalRow}</ul>
       </div>
       <div class="rank-block">
         <span>Actualizacion</span>

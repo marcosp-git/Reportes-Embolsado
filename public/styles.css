@@ -1091,6 +1091,13 @@ textarea {
   font-variant-numeric: tabular-nums;
 }
 
+.rank-block li.rank-total {
+  margin-top: 4px;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+  font-weight: 820;
+}
+
 .panel-footer {
   margin-top: auto;
   border-top: 1px solid var(--line);

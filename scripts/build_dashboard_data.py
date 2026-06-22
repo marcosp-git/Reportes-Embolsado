@@ -310,11 +310,11 @@ def client_ranking() -> list[dict[str, Any]]:
 def monthly_bags_by_client() -> dict[str, float]:
     rows = read_sheet(WORK / "PP2SJ 1.xlsx", "GEN")
     by_client: dict[str, float] = defaultdict(float)
-    excluded_families = {"SUB", "VAR"}
+    included_families = {"HAE", "HAF"}
     for row in rows[1:]:
         family = norm(row[1]) if len(row) > 1 else ""
         client_id = clean(row[4]) if len(row) > 4 else ""
-        if not family or family in excluded_families or not client_id:
+        if family not in included_families or not client_id:
             continue
         by_client[client_id] += number(row[5]) / 25
     return by_client
