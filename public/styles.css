@@ -747,6 +747,22 @@ h1 {
   font-variant-numeric: tabular-nums;
 }
 
+.dashboard-table .dashboard-group-row td {
+  background: #eef6f4;
+  border-top: 1px solid #c8ded9;
+  border-bottom: 1px solid #c8ded9;
+  padding: 8px 10px;
+}
+
+.dashboard-table .dashboard-group-row strong {
+  max-width: none;
+  color: #0f5f5a;
+}
+
+.dashboard-table .dashboard-group-row small {
+  color: #3f5958;
+}
+
 .dashboard-table strong {
   display: block;
   max-width: 170px;

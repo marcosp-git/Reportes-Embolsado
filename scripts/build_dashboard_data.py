@@ -100,6 +100,26 @@ def compact_name(value: Any) -> str:
     return clean(value).upper()
 
 
+TEAM_LABELS = {
+    "D02": {"manager": "Gustavo", "zone": "AMBA Sur"},
+    "D03": {"manager": "José", "zone": "Interior"},
+    "D07": {"manager": "Pablo", "zone": "AMBA Oeste / Norte"},
+}
+
+
+def base_team_code(value: Any) -> str:
+    match = re.search(r"D\d{2}", norm(value))
+    return match.group(0) if match else clean(value).upper()
+
+
+def team_label(value: Any) -> dict[str, str]:
+    code = base_team_code(value)
+    label = TEAM_LABELS.get(code)
+    if label:
+        return {"teamCodeBase": code, **label}
+    return {"teamCodeBase": code, "manager": clean(value) or "Sin jefe", "zone": "Sin zona"}
+
+
 def projected_summary() -> tuple[list[dict[str, Any]], dict[str, Any]]:
     rows = read_sheet(WORK / "16. PROYECTADO DIARIO JUNIO.xlsx", "PROY ")
     month_days = int(number(rows[2][1])) if len(rows) > 2 else 0
@@ -359,10 +379,14 @@ def main() -> None:
 
     seller_rows = []
     for key, entry in sellers.items():
+        label = team_label(entry.get("teamCode", ""))
         seller_rows.append(
             {
                 "seller": entry.get("seller", key),
                 "teamCode": entry.get("teamCode", ""),
+                "teamCodeBase": label["teamCodeBase"],
+                "manager": label["manager"],
+                "teamZone": label["zone"],
                 "haeActual": round(number(entry.get("haeActual")), 2),
                 "totalTn": round(number(entry.get("totalTn")), 2),
                 "importe": round(number(entry.get("importe")), 2),

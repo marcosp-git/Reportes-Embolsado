@@ -390,6 +390,35 @@ function tableRows(rows, columns) {
     .join("");
 }
 
+function sellerGroupKey(row) {
+  return `${row.manager || "Sin jefe"} · ${row.teamZone || "Sin zona"}`;
+}
+
+function sellerGroupRows(rows, columns) {
+  const groups = new Map();
+  rows.forEach((row) => {
+    const key = sellerGroupKey(row);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(row);
+  });
+
+  return [...groups.entries()]
+    .map(([key, groupRows]) => {
+      const totalBags = groupRows.reduce((sum, row) => sum + (Number(row.haeActual) || 0), 0);
+      const activeClients = groupRows.reduce((sum, row) => sum + (Number(row.activeClients) || 0), 0);
+      return `
+        <tr class="dashboard-group-row">
+          <td colspan="${columns.length}">
+            <strong>${escapeHtml(key)}</strong>
+            <small>${formatBagsAndTons(totalBags)} · ${formatNumber(activeClients)} clientes activos</small>
+          </td>
+        </tr>
+        ${tableRows(groupRows, columns)}
+      `;
+    })
+    .join("");
+}
+
 function renderSummaryDashboard() {
   const teams = teamsFromProjected().map(teamSummary);
   const teamCards = teams
@@ -483,6 +512,15 @@ function renderTeamsDashboard() {
 
 function renderSellersDashboard() {
   const sellers = (dashboardData.sellers || []).filter((seller) => seller.haeActual || seller.totalTn).slice(0, 24);
+  const columns = [
+    { render: (row) => `<strong>${escapeHtml(row.seller)}</strong><small>${escapeHtml(row.teamCode || "")}</small>` },
+    { render: (row) => escapeHtml(row.manager || row.teamCode || "") },
+    { align: "num", render: (row) => formatBagsAndTons(row.haeActual) },
+    { align: "num", render: (row) => formatDecimal(row.totalTn, 1) },
+    { align: "num", render: (row) => formatMoney(row.ppxKg).replace("$", "") },
+    { align: "num", render: (row) => `${formatNumber(row.activeClients)} / ${formatNumber(row.inactiveClients)}` }
+  ];
+
   dashboardView.innerHTML = `
     <table class="dashboard-table">
       <thead>
@@ -492,18 +530,11 @@ function renderSellersDashboard() {
           <th>Harinas acum</th>
           <th>TN 2SJ</th>
           <th>PP kg</th>
-          <th>Activos</th>
+          <th>Activos / inactivos</th>
         </tr>
       </thead>
       <tbody>
-        ${tableRows(sellers, [
-          { render: (row) => `<strong>${escapeHtml(row.seller)}</strong>` },
-          { render: (row) => escapeHtml(row.teamCode || "") },
-          { align: "num", render: (row) => formatBagsAndTons(row.haeActual) },
-          { align: "num", render: (row) => formatDecimal(row.totalTn, 1) },
-          { align: "num", render: (row) => formatMoney(row.ppxKg).replace("$", "") },
-          { align: "num", render: (row) => `${formatNumber(row.activeClients)} / ${formatNumber(row.inactiveClients)}` }
-        ])}
+        ${sellerGroupRows(sellers, columns)}
       </tbody>
     </table>
   `;
